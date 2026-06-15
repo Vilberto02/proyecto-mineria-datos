@@ -2,6 +2,18 @@
 
 Proyecto realizado por el grupo 04 del curso de Minería de datos, incorporado por estudiantes de la carrera de Ingeniería de software de la Facultad de Ingeniería de Sistemas e Informática de la UNMSM.
 
+### Stack tecnológico
+- Python
+- Colab
+- API Youtube
+- Google Cloud Platform
+- numpy
+- pandas
+- scikit Learn
+- matplotlib
+- openpyxl
+- Jupyter Notebook
+
 
 ### Estructura de carpetas del proyecto
 
@@ -9,43 +21,42 @@ Proyecto realizado por el grupo 04 del curso de Minería de datos, incorporado p
 proyecto-mineria-datos
 │
 ├── entregables
-│   ├── avance-01
-│   │   ├── codigo
-│   │   ├── informe.pdf
-│   │   └── avance-01.zip
+│   ├── primer-entregable
+│   │   ├── scrapping-youtube-g4
+│   │   ├── scrapping-tiktok-g4
+│   │   └── Documentacion-Proyecto-Minería-G4.pdf
 │   │
-│   ├── avance-02
-│   │   ├── codigo
-│   │   ├── informe.pdf
-│   │   └── avance-02.zip
+│   ├── segundo-entregable
+│   │   ├── resultados
+│   │   ├── scraping-tiktok
+│   │   ├── scraping-youtube
+│   │   ├── analisis-emociones-md-grupo04.pdf
+│   │   └── Emociones_Preprocesamiento_Grupo04.ipynb
 │   │
-│   └── entrega-final
-│       ├── codigo
-│       ├── informe.pdf
-│       └── entrega-final.zip
+│   └── tercer-entregable
+│   │   ├── resultados
+│   │   ├── scrapping-tiktok
+│   │   ├── scrapping-youtube
+│   │   ├── analisis-emociones-md-grupo04.pdf
+│   │   └── Emociones_Preprocesamiento_Grupo04.ipynb
+│   └── primer-entregable.zip
+│   └── segundo-entregabke.zip
+│   └── tercer-entregable.zip
 │
 ├── documentacion
-│   ├── articulo.pdf
-│   ├── resumen-articulo.pdf
-│   └── referencias
+│   ├── analisis-emociones-md-g4.pdf
+│   └── enlaces.md
 │
 ├── preprocesamiento
-│   ├── scraping-tiktok
-│   ├── scraping-youtube
-│   ├── resultados
-│   └── emociones-preprocesamiento.ipynb
+│   ├── scrapping-tiktok-g4
+│   ├── scrapping-youtube-g4
+│   └── Emociones_Preprocesamiento_Grupo04.ipynb
 │
 ├── modelado
 │   ├── datos
-│   │
-│   ├── machine-learning
-│   │
 │   ├── redes-neuronales
-│   │
 │   ├── transformers
-│   │
 │   ├── resultados
-│   │
 │   ├── app.py
 │   └── requirements.txt
 │
