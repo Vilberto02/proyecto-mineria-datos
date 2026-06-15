@@ -5,6 +5,7 @@ Proyecto realizado por el grupo 04 del curso de Minería de datos, incorporado p
 
 ### Estructura de carpetas del proyecto
 
+``` text
 proyecto-mineria-datos
 │
 ├── entregables
@@ -50,3 +51,4 @@ proyecto-mineria-datos
 │
 ├── .gitignore
 └── README.md
+```
