@@ -55,8 +55,9 @@ proyecto-mineria-datos
 ├── modelado
 │   ├── datos
 │   ├── redes-neuronales
-│   ├── transformers
 │   ├── resultados
+│   ├── tecnicas-clasicas
+│   ├── transformers
 │   ├── app.py
 │   └── requirements.txt
 │
