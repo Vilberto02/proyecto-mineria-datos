@@ -7,7 +7,7 @@ import seaborn as sns
 # Configuración de carpetas
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATOS_DIR = os.path.join(BASE_DIR, 'datos')
-RESULTADOS_DIR = os.path.join(BASE_DIR, 'resultados')
+RESULTADOS_DIR = BASE_DIR
 
 # Crear carpeta de resultados si no existe
 os.makedirs(RESULTADOS_DIR, exist_ok=True)

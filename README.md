@@ -3,21 +3,16 @@
 Proyecto realizado por el grupo 04 del curso de Minería de datos, incorporado por estudiantes de la carrera de Ingeniería de software de la Facultad de Ingeniería de Sistemas e Informática de la UNMSM.
 
 ### Stack tecnológico
+
 - Python
-- Colab
+- Google Colab
 - API Youtube
 - Google Cloud Platform
-- numpy
-- pandas
-- scikit Learn
-- matplotlib
-- openpyxl
 - Jupyter Notebook
-
 
 ### Estructura de carpetas del proyecto
 
-``` text
+```text
 proyecto-mineria-datos
 │
 ├── entregables
@@ -55,7 +50,9 @@ proyecto-mineria-datos
 ├── modelado
 │   ├── datos
 │   ├── redes-neuronales
-│   ├── resultados
+│   ├── resultados_nn
+│   ├── resultados_tecnicas-clasicas
+│   ├── resultados_transformers
 │   ├── tecnicas-clasicas
 │   ├── transformers
 │   ├── app.py
