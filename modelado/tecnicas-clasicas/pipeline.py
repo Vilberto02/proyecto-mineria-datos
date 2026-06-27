@@ -1,5 +1,7 @@
 import os
 import sys
+# pyrefly: ignore [missing-import]
+import numpy as np
 import pandas as pd
 # pyrefly: ignore [missing-import]
 import matplotlib.pyplot as plt
@@ -7,9 +9,15 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import SVC
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import (
+    classification_report, accuracy_score, precision_score,
+    recall_score, f1_score, confusion_matrix,
+    roc_curve, auc
+)
 
 # pyrefly: ignore [missing-import]
 from imblearn.pipeline import Pipeline
@@ -51,6 +59,53 @@ def preprocesar_datos(df):
     
     return df['lemas'], df['emocion']
 
+def graficar_roc_curva(nombre_modelo, mejor_modelo, X_test, y_test, clases):
+    """
+    Genera la curva ROC multiclase usando estrategia One-vs-Rest (OvR).
+    Calcula una curva por clase y la macro-average.
+    Exporta un PNG en RESULTADOS_DIR y devuelve el AUC macro + AUC por clase.
+    """
+    y_test_bin = label_binarize(y_test, classes=clases)
+    y_score    = mejor_modelo.predict_proba(X_test)
+
+    fpr, tpr, roc_auc = {}, {}, {}
+    for i, clase in enumerate(clases):
+        fpr[clase], tpr[clase], _ = roc_curve(y_test_bin[:, i], y_score[:, i])
+        roc_auc[clase] = auc(fpr[clase], tpr[clase])
+
+    # Macro-average interpolada
+    all_fpr  = np.unique(np.concatenate([fpr[c] for c in clases]))
+    mean_tpr = np.zeros_like(all_fpr)
+    for c in clases:
+        mean_tpr += np.interp(all_fpr, fpr[c], tpr[c])
+    mean_tpr /= len(clases)
+    auc_macro = auc(all_fpr, mean_tpr)
+
+    # Gráfico
+    colores = ['#4C72B0', '#DD8452', '#55A868', '#C44E52']
+    plt.figure(figsize=(9, 7))
+    for i, (clase, color) in enumerate(zip(clases, colores)):
+        plt.plot(fpr[clase], tpr[clase], color=color, lw=2,
+                 label=f'{clase} (AUC = {roc_auc[clase]:.3f})')
+    plt.plot(all_fpr, mean_tpr, color='black', lw=2.5, linestyle='--',
+             label=f'Macro-avg (AUC = {auc_macro:.3f})')
+    plt.plot([0, 1], [0, 1], color='gray', linestyle=':', lw=1.5,
+             label='Clasificador aleatorio')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Tasa de Falsos Positivos (FPR)', fontsize=12)
+    plt.ylabel('Tasa de Verdaderos Positivos (TPR)', fontsize=12)
+    plt.title(f'Curva ROC Multiclase (OvR) — {nombre_modelo}', fontsize=14)
+    plt.legend(loc='lower right', fontsize=10)
+    plt.tight_layout()
+
+    nombre_roc = f'roc_{nombre_modelo.lower().replace(" ", "_").replace("á","a")}.png'
+    ruta_roc   = os.path.join(RESULTADOS_DIR, nombre_roc)
+    plt.savefig(ruta_roc, dpi=300)
+    plt.close()
+
+    return auc_macro, roc_auc, nombre_roc
+
 def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X_test, y_test, archivo_reporte, skf):
     print(f"   -> Entrenando {nombre_modelo}...")
     
@@ -83,6 +138,12 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X
     plt.savefig(ruta_cm, dpi=300)
     plt.close()
     
+    # Generar Curva ROC multiclase (One-vs-Rest)
+    clases = list(mejor_modelo.classes_)
+    auc_macro, roc_auc_por_clase, nombre_roc = graficar_roc_curva(
+        nombre_modelo, mejor_modelo, X_test, y_test, clases
+    )
+    
     # Escribir resultados
     with open(archivo_reporte, 'a', encoding='utf-8') as f:
         f.write(f"## {nombre_modelo}\n\n")
@@ -107,7 +168,15 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X
         f.write("```text\n")
         f.write(classification_report(y_test, y_pred_test, zero_division=0))
         f.write("\n```\n\n")
-        f.write(f"**Matriz de Confusión:**\n\n![Matriz de Confusión {nombre_modelo}](./cm_{nombre_modelo}.png)\n\n")
+        f.write(f"**Matriz de Confusión:**\n\n![Matriz de Confusión {nombre_modelo}](./cm_{nombre_modelo.lower().replace(' ', '_').replace('á','a')}.png)\n\n")
+        
+        # Sección ROC / AUC
+        f.write("### Curva ROC y AUC (One-vs-Rest)\n\n")
+        f.write(f"- **AUC Macro-average:** {auc_macro:.4f}\n")
+        for clase, auc_val in roc_auc_por_clase.items():
+            f.write(f"- **AUC {clase}:** {auc_val:.4f}\n")
+        f.write(f"\n![Curva ROC {nombre_modelo}](./{nombre_roc})\n\n")
+        f.write("---\n\n")
 
 def ejecutar_pipeline():
     print("1. Carga de los datos...")
@@ -130,10 +199,13 @@ def ejecutar_pipeline():
             'pipeline': Pipeline([
                 ('tfidf', TfidfVectorizer(ngram_range=(1, 2), min_df=5, max_df=0.85)),
                 ('smote', SMOTE(random_state=42)),
-                ('clf', SVC(kernel='linear', class_weight='balanced', random_state=42))
+                ('clf', CalibratedClassifierCV(
+                    SVC(kernel='linear', class_weight='balanced', random_state=42),
+                    cv=3, method='sigmoid'
+                ))
             ]),
             'param_grid': {
-                'clf__C': [0.1, 1, 10]
+                'clf__estimator__C': [0.1, 1, 10]
             }
         },
         {

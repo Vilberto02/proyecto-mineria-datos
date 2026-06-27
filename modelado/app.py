@@ -14,9 +14,9 @@ os.makedirs(RESULTADOS_DIR, exist_ok=True)
 
 def cargar_datasets():
     datasets = [
-        {'file': 'dataset_tiktok_01_procesado.xlsx', 'origen': 'tiktok_01'},
-        {'file': 'dataset_youtube_01_procesado.xlsx', 'origen': 'youtube_01'},
-        {'file': 'dataset_youtube_02_procesado.xlsx', 'origen': 'youtube_02'}
+        {'file': 'dataset_procesado_tiktok_parte01.csv', 'origen': 'tiktok_01'},
+        {'file': 'dataset_procesado_youtube_parte01.csv', 'origen': 'youtube_01'},
+        {'file': 'dataset_procesado_youtube_parte02.csv', 'origen': 'youtube_02'}
     ]
     
     dfs = []
@@ -24,7 +24,7 @@ def cargar_datasets():
         file_path = os.path.join(DATOS_DIR, ds['file'])
         if os.path.exists(file_path):
             print(f"   Cargando {ds['file']}...")
-            df = pd.read_excel(file_path)
+            df = pd.read_csv(file_path, sep=';', encoding='utf-8', on_bad_lines='skip')
             
             # Limpiar nombres de columnas (eliminar espacios)
             df.columns = df.columns.str.strip().str.lower()
