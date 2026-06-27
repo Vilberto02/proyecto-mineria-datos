@@ -24,7 +24,7 @@ if BASE_DIR not in sys.path:
 from app import cargar_datasets
 
 DATOS_DIR = os.path.join(BASE_DIR, 'datos')
-RESULTADOS_DIR = os.path.join(BASE_DIR, 'resultados')
+RESULTADOS_DIR = os.path.join(BASE_DIR, 'resultados_tecnicas-clasicas')
 
 os.makedirs(RESULTADOS_DIR, exist_ok=True)
 
@@ -45,7 +45,7 @@ def preprocesar_datos(df):
     # Asegurarnos de usar 'Alegria' (sin tilde) como lo solicitaste
     df['emocion'] = df['emocion'].replace({'Alegría': 'Alegria'})
     
-    # Filtrar estrictamente las 6 emociones maestras
+    # Filtrar las emociones
     emociones_validas = ['Sorpresa', 'Miedo', 'Alegria', 'Tristeza']
     df = df[df['emocion'].isin(emociones_validas)]
     
@@ -107,8 +107,7 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X
         f.write("```text\n")
         f.write(classification_report(y_test, y_pred_test, zero_division=0))
         f.write("\n```\n\n")
-        ruta_cm_md = ruta_cm.replace('\\', '/')
-        f.write(f"**Matriz de Confusión:**\n\n![Matriz de Confusión {nombre_modelo}](file:///{ruta_cm_md})\n\n")
+        f.write(f"**Matriz de Confusión:**\n\n![Matriz de Confusión {nombre_modelo}](./cm_{nombre_modelo}.png)\n\n")
 
 def ejecutar_pipeline():
     print("1. Carga de los datos...")
