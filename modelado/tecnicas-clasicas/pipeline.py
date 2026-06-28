@@ -106,7 +106,9 @@ def graficar_roc_curva(nombre_modelo, mejor_modelo, X_test, y_test, clases):
 
     return auc_macro, roc_auc, nombre_roc
 
-def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X_test, y_test, archivo_reporte, skf):
+def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid,
+                        X_train, y_train, X_val, y_val, X_test, y_test,
+                        archivo_reporte, skf):
     print(f"   -> Entrenando {nombre_modelo}...")
     
     if param_grid:
@@ -122,12 +124,14 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X
         mejores_params = "Por defecto"
         
     y_pred_train = mejor_modelo.predict(X_train)
-    y_pred_test = mejor_modelo.predict(X_test)
+    y_pred_val   = mejor_modelo.predict(X_val)
+    y_pred_test  = mejor_modelo.predict(X_test)
     
-    # Generar Matriz de Confusión
+    # Generar Matriz de Confusión (sobre el conjunto de Prueba)
     cm = confusion_matrix(y_test, y_pred_test, labels=mejor_modelo.classes_)
     plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=mejor_modelo.classes_, yticklabels=mejor_modelo.classes_)
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=mejor_modelo.classes_, yticklabels=mejor_modelo.classes_)
     plt.title(f'Matriz de Confusión - {nombre_modelo}')
     plt.xlabel('Predicción')
     plt.ylabel('Real')
@@ -138,7 +142,7 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X
     plt.savefig(ruta_cm, dpi=300)
     plt.close()
     
-    # Generar Curva ROC multiclase (One-vs-Rest)
+    # Generar Curva ROC multiclase (One-vs-Rest) sobre el conjunto de Prueba
     clases = list(mejor_modelo.classes_)
     auc_macro, roc_auc_por_clase, nombre_roc = graficar_roc_curva(
         nombre_modelo, mejor_modelo, X_test, y_test, clases
@@ -150,8 +154,9 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X
         
         if param_grid:
             f.write(f"**Mejores Hiperparámetros Encontrados:** `{mejores_params}`\n\n")
-            
-        f.write("### Resultados en el Conjunto de Entrenamiento (70%)\n")
+
+        # ── Entrenamiento Efectivo ──────────────────────────────────────────
+        f.write("### Resultados en el Conjunto de Entrenamiento Efectivo (~56%)\n")
         f.write(f"- **Accuracy:** {accuracy_score(y_train, y_pred_train):.4f}\n")
         f.write(f"- **Precision (macro):** {precision_score(y_train, y_pred_train, average='macro', zero_division=0):.4f}\n")
         f.write(f"- **Recall (macro):** {recall_score(y_train, y_pred_train, average='macro', zero_division=0):.4f}\n")
@@ -159,8 +164,19 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid, X_train, y_train, X
         f.write("```text\n")
         f.write(classification_report(y_train, y_pred_train, zero_division=0))
         f.write("\n```\n\n")
+
+        # Validación
+        f.write("### Resultados en el Conjunto de Validación (~24%)\n")
+        f.write(f"- **Accuracy:** {accuracy_score(y_val, y_pred_val):.4f}\n")
+        f.write(f"- **Precision (macro):** {precision_score(y_val, y_pred_val, average='macro', zero_division=0):.4f}\n")
+        f.write(f"- **Recall (macro):** {recall_score(y_val, y_pred_val, average='macro', zero_division=0):.4f}\n")
+        f.write(f"- **F1-Score (macro):** {f1_score(y_val, y_pred_val, average='macro', zero_division=0):.4f}\n\n")
+        f.write("```text\n")
+        f.write(classification_report(y_val, y_pred_val, zero_division=0))
+        f.write("\n```\n\n")
         
-        f.write("### Resultados en el Conjunto de Prueba (30%)\n")
+        # Prueba y Evaluación
+        f.write("### Resultados en el Conjunto de Prueba y Evaluación (20%)\n")
         f.write(f"- **Accuracy:** {accuracy_score(y_test, y_pred_test):.4f}\n")
         f.write(f"- **Precision (macro):** {precision_score(y_test, y_pred_test, average='macro', zero_division=0):.4f}\n")
         f.write(f"- **Recall (macro):** {recall_score(y_test, y_pred_test, average='macro', zero_division=0):.4f}\n")
@@ -184,12 +200,41 @@ def ejecutar_pipeline():
     
     print("2. Preprocesamiento de los datos de la columna emocion...")
     X, y = preprocesar_datos(df)
+
+    total = len(y)
+    print(f"\n   Total de registros (4 emociones): {total}")
     
-    print("3. División del dataset (70% entrenamiento, 30% prueba)...")
-    # Nota: No transformamos TF-IDF aquí. Dejamos el texto crudo para que el Pipeline
-    # calcule el TF-IDF dentro del fold cruzado y no se fugue información.
-    X_train_text, X_test_text, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
-    
+    # División de datos: 80% entrenamiento / 20% prueba
+    # Luego, del 80%: 70% entrenamiento efectivo / 30% validación
+    print("3. División del dataset:")
+    print("   - 80% : Entrenamiento (70% efectivo + 30% validación)")
+    print("   - 20% : Prueba y Evaluación")
+
+    # 1er corte: separar el 20% de prueba
+    X_temp, X_test, y_temp, y_test = train_test_split(
+        X, y, test_size=0.20, random_state=42, stratify=y
+    )
+    # 2do corte: del 80% restante, 30% para validación (= 24% del total)
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_temp, y_temp, test_size=0.30, random_state=42, stratify=y_temp
+    )
+
+    print(f"   Entrenamiento Efectivo: {len(X_train)} registros (~{len(X_train)/total*100:.1f}%)")
+    print(f"   Validación:             {len(X_val)} registros (~{len(X_val)/total*100:.1f}%)")
+    print(f"   Prueba y Evaluación:    {len(X_test)} registros (~{len(X_test)/total*100:.1f}%)")
+
+    # Distribución por clase en cada conjunto
+    emociones = sorted(y.unique())
+    print("\n   Distribución por emoción en cada conjunto:")
+    print(f"   {'Emoción':<14} {'Entren. Efect.':>16} {'Validación':>12} {'Prueba':>8}")
+    print(f"   {'-'*54}")
+    for em in emociones:
+        n_train = (y_train == em).sum()
+        n_val   = (y_val   == em).sum()
+        n_test  = (y_test  == em).sum()
+        print(f"   {em:<14} {n_train:>16} {n_val:>12} {n_test:>8}")
+    print(f"   {'TOTAL':<14} {len(y_train):>16} {len(y_val):>12} {len(y_test):>8}\n")
+
     print("4. Configuración de Pipelines y Grillas...")
     
     # Diccionarios de configuración para cada modelo
@@ -238,7 +283,25 @@ def ejecutar_pipeline():
     # Limpiar archivo si existe
     with open(archivo_reporte, 'w', encoding='utf-8') as f:
         f.write("# Reporte de Evaluación de Modelos Clásicos\n\n")
-        f.write("Evaluación robusta utilizando `imblearn.pipeline`, GridSearchCV y SMOTE para evitar Data Leakage y mitigar sobreajuste.\n\n")
+        f.write("Evaluación robusta utilizando `imblearn.pipeline`, GridSearchCV y SMOTE ")
+        f.write("para evitar Data Leakage y mitigar sobreajuste.\n\n")
+        f.write("## División de Datos\n\n")
+        f.write("| Conjunto | Registros | % del total |\n")
+        f.write("|---|---|---|\n")
+        f.write(f"| Entrenamiento Efectivo | {len(X_train)} | ~{len(X_train)/total*100:.1f}% |\n")
+        f.write(f"| Validación | {len(X_val)} | ~{len(X_val)/total*100:.1f}% |\n")
+        f.write(f"| Prueba y Evaluación | {len(X_test)} | ~{len(X_test)/total*100:.1f}% |\n")
+        f.write(f"| **Total** | **{total}** | **100%** |\n\n")
+        f.write("## Distribución por Emoción\n\n")
+        f.write("| Emoción | Entren. Efectivo | Validación | Prueba |\n")
+        f.write("|---|---|---|---|\n")
+        for em in emociones:
+            n_train = (y_train == em).sum()
+            n_val   = (y_val   == em).sum()
+            n_test  = (y_test  == em).sum()
+            f.write(f"| {em} | {n_train} | {n_val} | {n_test} |\n")
+        f.write(f"| **Total** | **{len(y_train)}** | **{len(y_val)}** | **{len(y_test)}** |\n\n")
+        f.write("---\n\n")
     
     print("5. Entrenamiento y optimización de hiperparámetros...")
     for conf in configuraciones:
@@ -246,7 +309,9 @@ def ejecutar_pipeline():
             conf['nombre'], 
             conf['pipeline'], 
             conf['param_grid'], 
-            X_train_text, y_train, X_test_text, y_test, 
+            X_train, y_train,
+            X_val, y_val,
+            X_test, y_test,
             archivo_reporte, 
             skf
         )
