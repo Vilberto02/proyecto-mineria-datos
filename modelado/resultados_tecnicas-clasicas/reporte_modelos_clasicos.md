@@ -1,25 +1,23 @@
 # Reporte de Evaluación de Modelos Clásicos
 
-Evaluación robusta utilizando `imblearn.pipeline`, GridSearchCV y SMOTE para evitar Data Leakage y mitigar sobreajuste.
-
 ## División de Datos
 
-| Conjunto | Registros | % del total |
-|---|---|---|
-| Entrenamiento Efectivo | 5076 | ~56.0% |
-| Validación | 2176 | ~24.0% |
-| Prueba y Evaluación | 1813 | ~20.0% |
-| **Total** | **9065** | **100%** |
+| Conjunto               | Registros | % del total |
+| ---------------------- | --------- | ----------- |
+| Entrenamiento Efectivo | 5076      | ~56.0%      |
+| Validación             | 2176      | ~24.0%      |
+| Prueba y Evaluación    | 1813      | ~20.0%      |
+| **Total**              | **9065**  | **100%**    |
 
 ## Distribución por Emoción
 
-| Emoción | Entren. Efectivo | Validación | Prueba |
-|---|---|---|---|
-| Alegria | 1304 | 559 | 466 |
-| Miedo | 1122 | 481 | 401 |
-| Sorpresa | 1147 | 492 | 409 |
-| Tristeza | 1503 | 644 | 537 |
-| **Total** | **5076** | **2176** | **1813** |
+| Emoción   | Entren. Efectivo | Validación | Prueba   |
+| --------- | ---------------- | ---------- | -------- |
+| Alegria   | 1304             | 559        | 466      |
+| Miedo     | 1122             | 481        | 401      |
+| Sorpresa  | 1147             | 492        | 409      |
+| Tristeza  | 1503             | 644        | 537      |
+| **Total** | **5076**         | **2176**   | **1813** |
 
 ---
 
@@ -28,6 +26,7 @@ Evaluación robusta utilizando `imblearn.pipeline`, GridSearchCV y SMOTE para ev
 **Mejores Hiperparámetros Encontrados:** `{'clf__estimator__C': 1}`
 
 ### Resultados en el Conjunto de Entrenamiento Efectivo (~56%)
+
 - **Accuracy:** 0.8227
 - **Precision (macro):** 0.8218
 - **Recall (macro):** 0.8255
@@ -47,7 +46,22 @@ weighted avg       0.82      0.82      0.82      5076
 
 ```
 
+**Matriz de Confusión (Entrenamiento):**
+
+![Matriz de Confusión SVM Train](./cm_svm_train.png)
+
+**Curva ROC (Entrenamiento — One-vs-Rest):**
+
+- **AUC Macro-average:** 0.9512
+- **AUC Alegria:** 0.9427
+- **AUC Miedo:** 0.9696
+- **AUC Sorpresa:** 0.9455
+- **AUC Tristeza:** 0.9469
+
+![Curva ROC SVM Train](./roc_svm_train.png)
+
 ### Resultados en el Conjunto de Validación (~24%)
+
 - **Accuracy:** 0.6480
 - **Precision (macro):** 0.6521
 - **Recall (macro):** 0.6502
@@ -67,7 +81,22 @@ weighted avg       0.65      0.65      0.65      2176
 
 ```
 
+**Matriz de Confusión (Validación):**
+
+![Matriz de Confusión SVM Val](./cm_svm_val.png)
+
+**Curva ROC (Validación — One-vs-Rest):**
+
+- **AUC Macro-average:** 0.8408
+- **AUC Alegria:** 0.8017
+- **AUC Miedo:** 0.8882
+- **AUC Sorpresa:** 0.8248
+- **AUC Tristeza:** 0.8472
+
+![Curva ROC SVM Val](./roc_svm_val.png)
+
 ### Resultados en el Conjunto de Prueba y Evaluación (20%)
+
 - **Accuracy:** 0.6514
 - **Precision (macro):** 0.6573
 - **Recall (macro):** 0.6534
@@ -87,11 +116,11 @@ weighted avg       0.66      0.65      0.65      1813
 
 ```
 
-**Matriz de Confusión:**
+**Matriz de Confusión (Prueba):**
 
-![Matriz de Confusión SVM](./cm_svm.png)
+![Matriz de Confusión SVM Test](./cm_svm_test.png)
 
-### Curva ROC y AUC (One-vs-Rest)
+**Curva ROC (Prueba — One-vs-Rest):**
 
 - **AUC Macro-average:** 0.8451
 - **AUC Alegria:** 0.8188
@@ -99,7 +128,7 @@ weighted avg       0.66      0.65      0.65      1813
 - **AUC Sorpresa:** 0.8339
 - **AUC Tristeza:** 0.8303
 
-![Curva ROC SVM](./roc_svm.png)
+![Curva ROC SVM Test](./roc_svm_test.png)
 
 ---
 
@@ -108,6 +137,7 @@ weighted avg       0.66      0.65      0.65      1813
 **Mejores Hiperparámetros Encontrados:** `{'clf__max_depth': 30, 'clf__min_samples_split': 10}`
 
 ### Resultados en el Conjunto de Entrenamiento Efectivo (~56%)
+
 - **Accuracy:** 0.8030
 - **Precision (macro):** 0.8215
 - **Recall (macro):** 0.8069
@@ -127,7 +157,22 @@ weighted avg       0.83      0.80      0.81      5076
 
 ```
 
+**Matriz de Confusión (Entrenamiento):**
+
+![Matriz de Confusión Random Forest Train](./cm_random_forest_train.png)
+
+**Curva ROC (Entrenamiento — One-vs-Rest):**
+
+- **AUC Macro-average:** 0.9648
+- **AUC Alegria:** 0.9580
+- **AUC Miedo:** 0.9791
+- **AUC Sorpresa:** 0.9543
+- **AUC Tristeza:** 0.9676
+
+![Curva ROC Random Forest Train](./roc_random_forest_train.png)
+
 ### Resultados en el Conjunto de Validación (~24%)
+
 - **Accuracy:** 0.6392
 - **Precision (macro):** 0.6504
 - **Recall (macro):** 0.6444
@@ -147,7 +192,22 @@ weighted avg       0.65      0.64      0.64      2176
 
 ```
 
+**Matriz de Confusión (Validación):**
+
+![Matriz de Confusión Random Forest Val](./cm_random_forest_val.png)
+
+**Curva ROC (Validación — One-vs-Rest):**
+
+- **AUC Macro-average:** 0.8465
+- **AUC Alegria:** 0.8045
+- **AUC Miedo:** 0.8945
+- **AUC Sorpresa:** 0.8315
+- **AUC Tristeza:** 0.8545
+
+![Curva ROC Random Forest Val](./roc_random_forest_val.png)
+
 ### Resultados en el Conjunto de Prueba y Evaluación (20%)
+
 - **Accuracy:** 0.6453
 - **Precision (macro):** 0.6593
 - **Recall (macro):** 0.6513
@@ -167,11 +227,11 @@ weighted avg       0.66      0.65      0.65      1813
 
 ```
 
-**Matriz de Confusión:**
+**Matriz de Confusión (Prueba):**
 
-![Matriz de Confusión Random Forest](./cm_random_forest.png)
+![Matriz de Confusión Random Forest Test](./cm_random_forest_test.png)
 
-### Curva ROC y AUC (One-vs-Rest)
+**Curva ROC (Prueba — One-vs-Rest):**
 
 - **AUC Macro-average:** 0.8496
 - **AUC Alegria:** 0.8240
@@ -179,13 +239,14 @@ weighted avg       0.66      0.65      0.65      1813
 - **AUC Sorpresa:** 0.8330
 - **AUC Tristeza:** 0.8379
 
-![Curva ROC Random Forest](./roc_random_forest.png)
+![Curva ROC Random Forest Test](./roc_random_forest_test.png)
 
 ---
 
 ## Naive Bayes
 
 ### Resultados en el Conjunto de Entrenamiento Efectivo (~56%)
+
 - **Accuracy:** 0.7486
 - **Precision (macro):** 0.7498
 - **Recall (macro):** 0.7494
@@ -205,7 +266,22 @@ weighted avg       0.75      0.75      0.75      5076
 
 ```
 
+**Matriz de Confusión (Entrenamiento):**
+
+![Matriz de Confusión Naive Bayes Train](./cm_naive_bayes_train.png)
+
+**Curva ROC (Entrenamiento — One-vs-Rest):**
+
+- **AUC Macro-average:** 0.9218
+- **AUC Alegria:** 0.9100
+- **AUC Miedo:** 0.9365
+- **AUC Sorpresa:** 0.9151
+- **AUC Tristeza:** 0.9252
+
+![Curva ROC Naive Bayes Train](./roc_naive_bayes_train.png)
+
 ### Resultados en el Conjunto de Validación (~24%)
+
 - **Accuracy:** 0.6176
 - **Precision (macro):** 0.6199
 - **Recall (macro):** 0.6170
@@ -225,7 +301,22 @@ weighted avg       0.62      0.62      0.62      2176
 
 ```
 
+**Matriz de Confusión (Validación):**
+
+![Matriz de Confusión Naive Bayes Val](./cm_naive_bayes_val.png)
+
+**Curva ROC (Validación — One-vs-Rest):**
+
+- **AUC Macro-average:** 0.8363
+- **AUC Alegria:** 0.8136
+- **AUC Miedo:** 0.8495
+- **AUC Sorpresa:** 0.8330
+- **AUC Tristeza:** 0.8476
+
+![Curva ROC Naive Bayes Val](./roc_naive_bayes_val.png)
+
 ### Resultados en el Conjunto de Prueba y Evaluación (20%)
+
 - **Accuracy:** 0.6304
 - **Precision (macro):** 0.6320
 - **Recall (macro):** 0.6300
@@ -245,11 +336,11 @@ weighted avg       0.63      0.63      0.63      1813
 
 ```
 
-**Matriz de Confusión:**
+**Matriz de Confusión (Prueba):**
 
-![Matriz de Confusión Naive Bayes](./cm_naive_bayes.png)
+![Matriz de Confusión Naive Bayes Test](./cm_naive_bayes_test.png)
 
-### Curva ROC y AUC (One-vs-Rest)
+**Curva ROC (Prueba — One-vs-Rest):**
 
 - **AUC Macro-average:** 0.8402
 - **AUC Alegria:** 0.8205
@@ -257,7 +348,6 @@ weighted avg       0.63      0.63      0.63      1813
 - **AUC Sorpresa:** 0.8496
 - **AUC Tristeza:** 0.8306
 
-![Curva ROC Naive Bayes](./roc_naive_bayes.png)
+![Curva ROC Naive Bayes Test](./roc_naive_bayes_test.png)
 
 ---
-
