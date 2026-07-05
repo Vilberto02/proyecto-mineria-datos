@@ -19,10 +19,7 @@ from sklearn.metrics import (
     roc_curve, auc
 )
 
-# pyrefly: ignore [missing-import]
-from imblearn.pipeline import Pipeline
-# pyrefly: ignore [missing-import]
-from imblearn.over_sampling import SMOTE
+from sklearn.pipeline import Pipeline
 
 # Configuración de carpetas
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -59,91 +56,82 @@ def preprocesar_datos(df):
     
     return df['lemas'], df['emocion']
 
-def graficar_roc_curva(nombre_modelo, mejor_modelo, X_datos, y_datos, clases, conjunto='test'):
-    """
-    Genera la curva ROC multiclase usando estrategia One-vs-Rest (OvR).
-    Calcula una curva por clase y la macro-average.
-    Exporta un PNG en RESULTADOS_DIR y devuelve el AUC macro + AUC por clase.
-
-    Args:
-        nombre_modelo: Nombre del modelo (ej. 'SVM').
-        mejor_modelo:  Modelo ya entrenado con método predict_proba.
-        X_datos:       Features del conjunto a evaluar.
-        y_datos:       Etiquetas verdaderas del conjunto a evaluar.
-        clases:        Lista de clases en el mismo orden que predict_proba.
-        conjunto:      Identificador del split ('train', 'val' o 'test').
-    """
-    y_bin  = label_binarize(y_datos, classes=clases)
-    y_score = mejor_modelo.predict_proba(X_datos)
-
-    fpr, tpr, roc_auc = {}, {}, {}
-    for i, clase in enumerate(clases):
-        fpr[clase], tpr[clase], _ = roc_curve(y_bin[:, i], y_score[:, i])
-        roc_auc[clase] = auc(fpr[clase], tpr[clase])
-
-    # Macro-average interpolada
-    all_fpr  = np.unique(np.concatenate([fpr[c] for c in clases]))
-    mean_tpr = np.zeros_like(all_fpr)
-    for c in clases:
-        mean_tpr += np.interp(all_fpr, fpr[c], tpr[c])
-    mean_tpr /= len(clases)
-    auc_macro = auc(all_fpr, mean_tpr)
-
-    # Gráfico
-    etiqueta_conjunto = {'train': 'Entrenamiento', 'val': 'Validación', 'test': 'Prueba'}.get(conjunto, conjunto)
+def graficar_roc_curvas_conjuntas(nombre_modelo, mejor_modelo, X_train, y_train, X_val, y_val, X_test, y_test, clases):
+    fig, axes = plt.subplots(1, 3, figsize=(20, 6))
+    fig.suptitle(f'Curvas ROC Multiclase (OvR) — {nombre_modelo}', fontsize=16)
+    
+    auc_dict_ret = {}
+    
+    conjuntos = [
+        ('Entrenamiento Efectivo', X_train, y_train, axes[0]),
+        ('Validación', X_val, y_val, axes[1]),
+        ('Prueba', X_test, y_test, axes[2])
+    ]
+    
     colores = ['#4C72B0', '#DD8452', '#55A868', '#C44E52']
-    plt.figure(figsize=(9, 7))
-    for i, (clase, color) in enumerate(zip(clases, colores)):
-        plt.plot(fpr[clase], tpr[clase], color=color, lw=2,
-                 label=f'{clase} (AUC = {roc_auc[clase]:.3f})')
-    plt.plot(all_fpr, mean_tpr, color='black', lw=2.5, linestyle='--',
-             label=f'Macro-avg (AUC = {auc_macro:.3f})')
-    plt.plot([0, 1], [0, 1], color='gray', linestyle=':', lw=1.5,
-             label='Clasificador aleatorio')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('Tasa de Falsos Positivos (FPR)', fontsize=12)
-    plt.ylabel('Tasa de Verdaderos Positivos (TPR)', fontsize=12)
-    plt.title(f'Curva ROC Multiclase (OvR) — {nombre_modelo} [{etiqueta_conjunto}]', fontsize=14)
-    plt.legend(loc='lower right', fontsize=10)
-    plt.tight_layout()
+    
+    for nombre_conjunto, X_datos, y_datos, ax in conjuntos:
+        y_bin = label_binarize(y_datos, classes=clases)
+        y_score = mejor_modelo.predict_proba(X_datos)
+        
+        fpr, tpr, roc_auc = {}, {}, {}
+        for i, clase in enumerate(clases):
+            fpr[clase], tpr[clase], _ = roc_curve(y_bin[:, i], y_score[:, i])
+            roc_auc[clase] = auc(fpr[clase], tpr[clase])
+            ax.plot(fpr[clase], tpr[clase], color=colores[i % len(colores)], lw=2,
+                     label=f'{clase} (AUC = {roc_auc[clase]:.3f})')
+                     
+        all_fpr = np.unique(np.concatenate([fpr[c] for c in clases]))
+        mean_tpr = np.zeros_like(all_fpr)
+        for c in clases:
+            mean_tpr += np.interp(all_fpr, fpr[c], tpr[c])
+        mean_tpr /= len(clases)
+        auc_macro = auc(all_fpr, mean_tpr)
+        
+        ax.plot(all_fpr, mean_tpr, color='black', lw=2.5, linestyle='--',
+                 label=f'Macro-avg (AUC = {auc_macro:.3f})')
+        ax.plot([0, 1], [0, 1], color='gray', linestyle=':', lw=1.5)
+        ax.set_xlim([0.0, 1.0])
+        ax.set_ylim([0.0, 1.05])
+        ax.set_xlabel('FPR')
+        ax.set_ylabel('TPR')
+        ax.set_title(nombre_conjunto)
+        ax.legend(loc='lower right', fontsize=8)
+        
+        auc_dict_ret[nombre_conjunto] = {'macro': auc_macro, 'clases': roc_auc}
 
+    plt.tight_layout()
     nombre_base = nombre_modelo.lower().replace(' ', '_').replace('á', 'a')
-    nombre_roc  = f'roc_{nombre_base}_{conjunto}.png'
-    ruta_roc    = os.path.join(RESULTADOS_DIR, nombre_roc)
+    nombre_roc = f'roc_conjunta_{nombre_base}.png'
+    ruta_roc = os.path.join(RESULTADOS_DIR, nombre_roc)
     plt.savefig(ruta_roc, dpi=300)
     plt.close()
 
-    return auc_macro, roc_auc, nombre_roc
+    return auc_dict_ret, nombre_roc
 
 
-def graficar_confusion_matrix(nombre_modelo, y_real, y_pred, clases, conjunto='test'):
-    """
-    Genera y guarda la matriz de confusión para un conjunto dado.
+def graficar_matrices_confusion_conjuntas(nombre_modelo, y_train, y_pred_train, y_val, y_pred_val, y_test, y_pred_test, clases):
+    fig, axes = plt.subplots(1, 3, figsize=(20, 6))
+    fig.suptitle(f'Matrices de Confusión - {nombre_modelo}', fontsize=16)
 
-    Args:
-        nombre_modelo: Nombre del modelo.
-        y_real:        Etiquetas verdaderas.
-        y_pred:        Etiquetas predichas.
-        clases:        Lista de clases (orden de filas/columnas).
-        conjunto:      Identificador del split ('train', 'val' o 'test').
+    conjuntos = [
+        ('Entrenamiento Efectivo', y_train, y_pred_train, axes[0]),
+        ('Validación', y_val, y_pred_val, axes[1]),
+        ('Prueba', y_test, y_pred_test, axes[2])
+    ]
 
-    Returns:
-        nombre_archivo_cm (str): Nombre del archivo PNG generado.
-    """
-    etiqueta_conjunto = {'train': 'Entrenamiento', 'val': 'Validación', 'test': 'Prueba'}.get(conjunto, conjunto)
-    cm = confusion_matrix(y_real, y_pred, labels=clases)
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                xticklabels=clases, yticklabels=clases)
-    plt.title(f'Matriz de Confusión - {nombre_modelo} [{etiqueta_conjunto}]')
-    plt.xlabel('Predicción')
-    plt.ylabel('Real')
+    for nombre_conjunto, y_real, y_pred, ax in conjuntos:
+        cm = confusion_matrix(y_real, y_pred, labels=clases)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                    xticklabels=clases, yticklabels=clases, ax=ax)
+        ax.set_title(nombre_conjunto)
+        ax.set_xlabel('Predicción')
+        ax.set_ylabel('Real')
+
     plt.tight_layout()
-
-    nombre_base        = nombre_modelo.lower().replace(' ', '_').replace('á', 'a')
-    nombre_archivo_cm  = f'cm_{nombre_base}_{conjunto}.png'
-    ruta_cm            = os.path.join(RESULTADOS_DIR, nombre_archivo_cm)
+    nombre_base = nombre_modelo.lower().replace(' ', '_').replace('á', 'a')
+    nombre_archivo_cm = f'cm_conjunta_{nombre_base}.png'
+    ruta_cm = os.path.join(RESULTADOS_DIR, nombre_archivo_cm)
     plt.savefig(ruta_cm, dpi=300)
     plt.close()
 
@@ -172,20 +160,12 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid,
     y_pred_val   = mejor_modelo.predict(X_val)
     y_pred_test  = mejor_modelo.predict(X_test)
 
-    # Matrices de Confusión (train / val / test)
-    nombre_cm_train = graficar_confusion_matrix(nombre_modelo, y_train, y_pred_train, clases, conjunto='train')
-    nombre_cm_val   = graficar_confusion_matrix(nombre_modelo, y_val,   y_pred_val,   clases, conjunto='val')
-    nombre_cm_test  = graficar_confusion_matrix(nombre_modelo, y_test,  y_pred_test,  clases, conjunto='test')
+    nombre_cm_conjunta = graficar_matrices_confusion_conjuntas(
+        nombre_modelo, y_train, y_pred_train, y_val, y_pred_val, y_test, y_pred_test, clases
+    )
 
-    # Curvas ROC multiclase OvR (train / val / test)
-    auc_macro_train, roc_auc_train, nombre_roc_train = graficar_roc_curva(
-        nombre_modelo, mejor_modelo, X_train, y_train, clases, conjunto='train'
-    )
-    auc_macro_val, roc_auc_val, nombre_roc_val = graficar_roc_curva(
-        nombre_modelo, mejor_modelo, X_val, y_val, clases, conjunto='val'
-    )
-    auc_macro_test, roc_auc_test, nombre_roc_test = graficar_roc_curva(
-        nombre_modelo, mejor_modelo, X_test, y_test, clases, conjunto='test'
+    auc_dict_ret, nombre_roc_conjunta = graficar_roc_curvas_conjuntas(
+        nombre_modelo, mejor_modelo, X_train, y_train, X_val, y_val, X_test, y_test, clases
     )
 
     with open(archivo_reporte, 'a', encoding='utf-8') as f:
@@ -203,12 +183,12 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid,
         f.write("```text\n")
         f.write(classification_report(y_train, y_pred_train, zero_division=0))
         f.write("\n```\n\n")
-        f.write(f"**Matriz de Confusión (Entrenamiento):**\n\n![Matriz de Confusión {nombre_modelo} Train](./{nombre_cm_train})\n\n")
-        f.write("**Curva ROC (Entrenamiento — One-vs-Rest):**\n\n")
-        f.write(f"- **AUC Macro-average:** {auc_macro_train:.4f}\n")
-        for clase, auc_val in roc_auc_train.items():
-            f.write(f"- **AUC {clase}:** {auc_val:.4f}\n")
-        f.write(f"\n![Curva ROC {nombre_modelo} Train](./{nombre_roc_train})\n\n")
+        
+        f.write("**AUC ROC (Entrenamiento):**\n")
+        f.write(f"- Macro-average: {auc_dict_ret['Entrenamiento Efectivo']['macro']:.4f}\n")
+        for clase, auc_val in auc_dict_ret['Entrenamiento Efectivo']['clases'].items():
+            f.write(f"- {clase}: {auc_val:.4f}\n")
+        f.write("\n")
 
         # — Validación (~24%) —
         f.write("### Resultados en el Conjunto de Validación (~24%)\n")
@@ -219,12 +199,12 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid,
         f.write("```text\n")
         f.write(classification_report(y_val, y_pred_val, zero_division=0))
         f.write("\n```\n\n")
-        f.write(f"**Matriz de Confusión (Validación):**\n\n![Matriz de Confusión {nombre_modelo} Val](./{nombre_cm_val})\n\n")
-        f.write("**Curva ROC (Validación — One-vs-Rest):**\n\n")
-        f.write(f"- **AUC Macro-average:** {auc_macro_val:.4f}\n")
-        for clase, auc_val in roc_auc_val.items():
-            f.write(f"- **AUC {clase}:** {auc_val:.4f}\n")
-        f.write(f"\n![Curva ROC {nombre_modelo} Val](./{nombre_roc_val})\n\n")
+
+        f.write("**AUC ROC (Validación):**\n")
+        f.write(f"- Macro-average: {auc_dict_ret['Validación']['macro']:.4f}\n")
+        for clase, auc_val in auc_dict_ret['Validación']['clases'].items():
+            f.write(f"- {clase}: {auc_val:.4f}\n")
+        f.write("\n")
 
         # — Prueba y Evaluación (20%) —
         f.write("### Resultados en el Conjunto de Prueba y Evaluación (20%)\n")
@@ -235,12 +215,17 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid,
         f.write("```text\n")
         f.write(classification_report(y_test, y_pred_test, zero_division=0))
         f.write("\n```\n\n")
-        f.write(f"**Matriz de Confusión (Prueba):**\n\n![Matriz de Confusión {nombre_modelo} Test](./{nombre_cm_test})\n\n")
-        f.write("**Curva ROC (Prueba — One-vs-Rest):**\n\n")
-        f.write(f"- **AUC Macro-average:** {auc_macro_test:.4f}\n")
-        for clase, auc_val in roc_auc_test.items():
-            f.write(f"- **AUC {clase}:** {auc_val:.4f}\n")
-        f.write(f"\n![Curva ROC {nombre_modelo} Test](./{nombre_roc_test})\n\n")
+
+        f.write("**AUC ROC (Prueba):**\n")
+        f.write(f"- Macro-average: {auc_dict_ret['Prueba']['macro']:.4f}\n")
+        for clase, auc_val in auc_dict_ret['Prueba']['clases'].items():
+            f.write(f"- {clase}: {auc_val:.4f}\n")
+        f.write("\n")
+        
+        # — Gráficas Conjuntas —
+        f.write("### Gráficas de Evaluación Conjuntas\n\n")
+        f.write(f"**Matrices de Confusión:**\n\n![Matrices de Confusión {nombre_modelo}](./{nombre_cm_conjunta})\n\n")
+        f.write(f"**Curvas ROC:**\n\n![Curvas ROC {nombre_modelo}](./{nombre_roc_conjunta})\n\n")
         f.write("---\n\n")
 
 def ejecutar_pipeline():
@@ -291,11 +276,10 @@ def ejecutar_pipeline():
         {
             'nombre': 'SVM',
             'pipeline': Pipeline([
-                ('tfidf', TfidfVectorizer(ngram_range=(1, 2), min_df=5, max_df=0.85)),
-                ('smote', SMOTE(random_state=42)),
+                ('tfidf', TfidfVectorizer(ngram_range=(1, 2), max_features=2000, min_df=5, max_df=0.85)),
                 ('clf', CalibratedClassifierCV(
                     SVC(kernel='linear', class_weight='balanced', random_state=42),
-                    cv=3, method='sigmoid'
+                    cv=5, method='sigmoid'
                 ))
             ]),
             'param_grid': {
@@ -305,8 +289,7 @@ def ejecutar_pipeline():
         {
             'nombre': 'Random Forest',
             'pipeline': Pipeline([
-                ('tfidf', TfidfVectorizer(ngram_range=(1, 2), min_df=5, max_df=0.85)),
-                ('smote', SMOTE(random_state=42)),
+                ('tfidf', TfidfVectorizer(ngram_range=(1, 2), max_features=2000, min_df=5, max_df=0.85)),
                 ('clf', RandomForestClassifier(class_weight='balanced', random_state=42))
             ]),
             'param_grid': {
@@ -317,15 +300,14 @@ def ejecutar_pipeline():
         {
             'nombre': 'Naive Bayes',
             'pipeline': Pipeline([
-                ('tfidf', TfidfVectorizer(ngram_range=(1, 2), min_df=5, max_df=0.85)),
-                ('smote', SMOTE(random_state=42)),
+                ('tfidf', TfidfVectorizer(ngram_range=(1, 2), max_features=2000, min_df=5, max_df=0.85)),
                 ('clf', MultinomialNB())
             ]),
             'param_grid': {} # Ejecución normal sin GridSearchCV
         }
     ]
     
-    skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     
     archivo_reporte = os.path.join(RESULTADOS_DIR, 'reporte_modelos_clasicos.md')
     
