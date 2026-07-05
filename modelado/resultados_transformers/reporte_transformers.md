@@ -1,217 +1,188 @@
 # Reporte de evaluación de modelos Transformer
 
-Resultados de métricas de rendimiento para los modelos BETO (BERT en Español) y RoBERTa (RoBERTuito).
+## BETO
 
----
+### Resultados de Validación Cruzada (5-Folds en Entrenamiento Efectivo)
 
-## Comparativa Global (Prueba)
-
-| Métrica           | BETO   | RoBERTa |
-| ----------------- | ------ | ------- |
-| Accuracy          | 0.7126 | 0.7170  |
-| Precision (macro) | 0.7149 | 0.7184  |
-| Recall (macro)    | 0.7112 | 0.7165  |
-| F1-Score (macro)  | 0.7120 | 0.7167  |
-| AUC (macro)       | 0.8963 | 0.9074  |
+- **Accuracy Media:** 0.6846
+- **Precision Media (macro):** 0.6867
+- **Recall Media (macro):** 0.6873
+- **F1-Score Media (macro):** 0.6849
 
 ## BETO
 
-### Resultados en Entrenamiento Efectivo (~56%)
+### Resultados en Entrenamiento Efectivo
 
-- **Accuracy:** 0.9809
-- **Precision (macro):** 0.9812
-- **Recall (macro):** 0.9819
-- **F1-Score (macro):** 0.9816
+- **Accuracy:** 0.8572
+- **Precision (macro):** 0.8624
+- **Recall (macro):** 0.8593
+- **F1-Score (macro):** 0.8567
 
-```text
-              precision    recall  f1-score   support
+**AUC ROC (Entrenamiento Efectivo):**
 
-     Alegria       0.98      0.98      0.98      1304
-       Miedo       0.98      0.99      0.98      1122
-    Sorpresa       0.99      0.99      0.99      1147
-    Tristeza       0.98      0.97      0.97      1503
+- Macro-promedio: 0.9688
+- Alegria: 0.9601\n- Miedo: 0.9757
+- Sorpresa: 0.9746\n- Tristeza: 0.9647
 
-    accuracy                           0.98      5076
-   macro avg       0.98      0.98      0.98      5076
-weighted avg       0.98      0.98      0.98      5076
-```
+**Reporte por Clase (Entrenamiento Efectivo)**
 
-**Matriz de Confusión (Entrenamiento):**
+| Clase    | Precisión | Recall | F1-Score | Soporte |
+| -------- | --------- | ------ | -------- | ------- |
+| Alegria  | 0.9190    | 0.7393 | 0.8194   | 1304    |
+| Miedo    | 0.8938    | 0.8850 | 0.8894   | 1122    |
+| Sorpresa | 0.7774    | 0.9285 | 0.8462   | 1147    |
+| Tristeza | 0.8596    | 0.8842 | 0.8718   | 1503    |
 
-![CM BETO Train](./cm_beto_train.png)
+### Resultados en Validación
 
-**Curva ROC (Entrenamiento — AUC Macro: 0.9982):**
+- **Accuracy:** 0.7169
+- **Precision (macro):** 0.7240
+- **Recall (macro):** 0.7159
+- **F1-Score (macro):** 0.7145
 
-- **AUC Alegria:** 0.9972
-- **AUC Miedo:** 0.9989
-- **AUC Sorpresa:** 0.9995
-- **AUC Tristeza:** 0.9970
+**AUC ROC (Validación):**
 
-![ROC BETO Train](./roc_beto_train.png)
+- Macro-promedio: 0.9034
+- Alegria: 0.8789
+- Miedo: 0.9323
+- Sorpresa: 0.8907
+- Tristeza: 0.9103
 
-### Resultados en Validación (~24%)
+**Reporte por Clase (Validación)**
 
-- **Accuracy:** 0.7201
-- **Precision (macro):** 0.7193
-- **Recall (macro):** 0.7190
-- **F1-Score (macro):** 0.7185
+| Clase    | Precisión | Recall | F1-Score | Soporte |
+| -------- | --------- | ------ | -------- | ------- |
+| Alegria  | 0.7890    | 0.5886 | 0.6742   | 559     |
+| Miedo    | 0.7622    | 0.7464 | 0.7542   | 481     |
+| Sorpresa | 0.6149    | 0.7398 | 0.6716   | 492     |
+| Tristeza | 0.7299    | 0.7888 | 0.7582   | 644     |
 
-```text
-              precision    recall  f1-score   support
+### Resultados en Prueba
 
-     Alegria       0.67      0.72      0.70       559
-       Miedo       0.76      0.79      0.77       481
-    Sorpresa       0.69      0.63      0.66       492
-    Tristeza       0.75      0.74      0.75       644
+- **Accuracy:** 0.7259
+- **Precision (macro):** 0.7390
+- **Recall (macro):** 0.7270
+- **F1-Score (macro):** 0.7262
 
-    accuracy                           0.72      2176
-   macro avg       0.72      0.72      0.72      2176
-weighted avg       0.72      0.72      0.72      2176
-```
+**AUC ROC (Prueba):**
 
-**Matriz de Confusión (Validación):**
+- Macro-promedio: 0.9076
+- Alegria: 0.8788
+- Miedo: 0.9382
+- Sorpresa: 0.8936
+- Tristeza: 0.9187
 
-![CM BETO Val](./cm_beto_val.png)
+**Reporte por Clase (Prueba)**
 
-**Curva ROC (Validación — AUC Macro: 0.8997):**
+| Clase    | Precisión | Recall | F1-Score | Soporte |
+| -------- | --------- | ------ | -------- | ------- |
+| Alegria  | 0.7994    | 0.5901 | 0.6790   | 466     |
+| Miedo    | 0.8259    | 0.7805 | 0.8026   | 401     |
+| Sorpresa | 0.5932    | 0.7628 | 0.6674   | 409     |
+| Tristeza | 0.7376    | 0.7747 | 0.7557   | 537     |
 
-- **AUC Alegria:** 0.8744
-- **AUC Miedo:** 0.9309
-- **AUC Sorpresa:** 0.8885
-- **AUC Tristeza:** 0.9037
+### Gráficas Conjuntas
 
-![ROC BETO Val](./roc_beto_val.png)
+**Matrices de Confusión:**
 
-### Resultados en Prueba y Evaluación (20%)
+![Matrices de Confusión BETO](./cm_conjunta_beto.png)
 
-- **Accuracy:** 0.7126
-- **Precision (macro):** 0.7149
-- **Recall (macro):** 0.7112
-- **F1-Score (macro):** 0.7120
+**Curvas ROC:**
 
-```text
-              precision    recall  f1-score   support
+![Curvas ROC BETO](./roc_conjunta_beto.png)
 
-     Alegria       0.65      0.73      0.69       466
-       Miedo       0.79      0.78      0.79       401
-    Sorpresa       0.68      0.61      0.64       409
-    Tristeza       0.74      0.73      0.73       537
+---
 
-    accuracy                           0.71      1813
-   macro avg       0.71      0.71      0.71      1813
-weighted avg       0.71      0.71      0.71      1813
-```
+## RoBERTuito
 
-**Matriz de Confusión (Prueba):**
+### Resultados de Validación Cruzada (5-Folds en Entrenamiento Efectivo)
 
-![CM BETO Test](./cm_beto_test.png)
+- **Accuracy Media:** 0.6966
+- **Precision Media (macro):** 0.7015
+- **Recall Media (macro):** 0.6974
+- **F1-Score Media (macro):** 0.6973
 
-**Curva ROC (Prueba — AUC Macro: 0.8963):**
+## RoBERTuito
 
-- **AUC Alegria:** 0.8661
-- **AUC Miedo:** 0.9321
-- **AUC Sorpresa:** 0.8868
-- **AUC Tristeza:** 0.8988
+### Resultados en Entrenamiento Efectivo
 
-![ROC BETO Test](./roc_beto_test.png)
+- **Accuracy:** 0.8649
+- **Precision (macro):** 0.8673
+- **Recall (macro):** 0.8652
+- **F1-Score (macro):** 0.8654
 
-## RoBERTa
+**AUC ROC (Entrenamiento Efectivo):**
 
-### Resultados en Entrenamiento Efectivo (~56%)
+- Macro-promedio: 0.9685
+- Alegria: 0.9592
+- Miedo: 0.9779
+- Sorpresa: 0.9746
+- Tristeza: 0.9620
 
-- **Accuracy:** 0.8229
-- **Precision (macro):** 0.8229
-- **Recall (macro):** 0.8225
-- **F1-Score (macro):** 0.8222
+**Reporte por Clase (Entrenamiento Efectivo)**
+| Clase | Precisión | Recall | F1-Score | Soporte |
+|-------|-----------|--------|----------|---------|
+| Alegria | 0.8915 | 0.8006 | 0.8436 | 1304 |
+| Miedo | 0.8703 | 0.9029 | 0.8863 | 1122 |
+| Sorpresa | 0.8696 | 0.8666 | 0.8681 | 1147 |
+| Tristeza | 0.8379 | 0.8909 | 0.8636 | 1503 |
 
-```text
-              precision    recall  f1-score   support
+### Resultados en Validación
 
-     Alegria       0.82      0.76      0.79      1304
-       Miedo       0.86      0.86      0.86      1122
-    Sorpresa       0.78      0.81      0.79      1147
-    Tristeza       0.83      0.86      0.85      1503
+- **Accuracy:** 0.7229
+- **Precision (macro):** 0.7228
+- **Recall (macro):** 0.7201
+- **F1-Score (macro):** 0.7203
 
-    accuracy                           0.82      5076
-   macro avg       0.82      0.82      0.82      5076
-weighted avg       0.82      0.82      0.82      5076
-```
+**AUC ROC (Validación):**
 
-**Matriz de Confusión (Entrenamiento):**
+- Macro-promedio: 0.9077
+- Alegria: 0.8909
+- Miedo: 0.9346
+- Sorpresa: 0.8978
+- Tristeza: 0.9063
 
-![CM RoBERTa Train](./cm_roberta_train.png)
+**Reporte por Clase (Validación)**
 
-**Curva ROC (Entrenamiento — AUC Macro: 0.9533):**
+| Clase    | Precisión | Recall | F1-Score | Soporte |
+| -------- | --------- | ------ | -------- | ------- |
+| Alegria  | 0.7495    | 0.6691 | 0.7070   | 559     |
+| Miedo    | 0.7495    | 0.7775 | 0.7633   | 481     |
+| Sorpresa | 0.6752    | 0.6463 | 0.6604   | 492     |
+| Tristeza | 0.7171    | 0.7873 | 0.7506   | 644     |
 
-- **AUC Alegria:** 0.9340
-- **AUC Miedo:** 0.9729
-- **AUC Sorpresa:** 0.9545
-- **AUC Tristeza:** 0.9513
+### Resultados en Prueba
 
-![ROC RoBERTa Train](./roc_roberta_train.png)
+- **Accuracy:** 0.7303
+- **Precision (macro):** 0.7325
+- **Recall (macro):** 0.7276
+- **F1-Score (macro):** 0.7284
 
-### Resultados en Validación (~24%)
+**AUC ROC (Prueba):**
 
-- **Accuracy:** 0.7188
-- **Precision (macro):** 0.7165
-- **Recall (macro):** 0.7161
-- **F1-Score (macro):** 0.7160
+- Macro-promedio: 0.9115
+- Alegria: 0.8888
+- Miedo: 0.9388
+- Sorpresa: 0.9046
+- Tristeza: 0.9126
 
-```text
-              precision    recall  f1-score   support
+**Reporte por Clase (Prueba)**
 
-     Alegria       0.73      0.68      0.70       559
-       Miedo       0.76      0.78      0.77       481
-    Sorpresa       0.64      0.63      0.63       492
-    Tristeza       0.74      0.77      0.76       644
+| Clase    | Precisión | Recall | F1-Score | Soporte |
+| -------- | --------- | ------ | -------- | ------- |
+| Alegria  | 0.7550    | 0.6545 | 0.7011   | 466     |
+| Miedo    | 0.8020    | 0.8080 | 0.8050   | 401     |
+| Sorpresa | 0.6617    | 0.6455 | 0.6535   | 409     |
+| Tristeza | 0.7112    | 0.8026 | 0.7542   | 537     |
 
-    accuracy                           0.72      2176
-   macro avg       0.72      0.72      0.72      2176
-weighted avg       0.72      0.72      0.72      2176
-```
+### Gráficas Conjuntas
 
-**Matriz de Confusión (Validación):**
+**Matrices de Confusión:**
 
-![CM RoBERTa Val](./cm_roberta_val.png)
+![Matrices de Confusión RoBERTuito](./cm_conjunta_roberta.png)
 
-**Curva ROC (Validación — AUC Macro: 0.8995):**
+**Curvas ROC:**
 
-- **AUC Alegria:** 0.8769
-- **AUC Miedo:** 0.9365
-- **AUC Sorpresa:** 0.8835
-- **AUC Tristeza:** 0.8998
+![Curvas ROC RoBERTuito](./roc_conjunta_roberta.png)
 
-![ROC RoBERTa Val](./roc_roberta_val.png)
-
-### Resultados en Prueba y Evaluación (20%)
-
-- **Accuracy:** 0.7170
-- **Precision (macro):** 0.7184
-- **Recall (macro):** 0.7165
-- **F1-Score (macro):** 0.7167
-
-```text
-              precision    recall  f1-score   support
-
-     Alegria       0.73      0.65      0.69       466
-       Miedo       0.79      0.80      0.80       401
-    Sorpresa       0.65      0.66      0.65       409
-    Tristeza       0.71      0.76      0.73       537
-
-    accuracy                           0.72      1813
-   macro avg       0.72      0.72      0.72      1813
-weighted avg       0.72      0.72      0.72      1813
-```
-
-**Matriz de Confusión (Prueba):**
-
-![CM RoBERTa Test](./cm_roberta_test.png)
-
-**Curva ROC (Prueba — AUC Macro: 0.9074):**
-
-- **AUC Alegria:** 0.8760
-- **AUC Miedo:** 0.9447
-- **AUC Sorpresa:** 0.8990
-- **AUC Tristeza:** 0.9087
-
-![ROC RoBERTa Test](./roc_roberta_test.png)
+---
