@@ -229,9 +229,13 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid,
         f.write("---\n\n")
 
 def ejecutar_pipeline():
-    print("1. Carga de los datos...")
-    df = cargar_datasets()
+    print("1. Carga de los datos limpios...")
+    ruta_dataset = os.path.join(DATOS_DIR, 'dataset_limpio_final.csv')
+    df = pd.read_csv(ruta_dataset, sep=';')
     
+    if 'final_emocion' in df.columns:
+        df['emocion'] = df['final_emocion']
+        
     print("2. Preprocesamiento de los datos de la columna emocion...")
     X, y = preprocesar_datos(df)
 
