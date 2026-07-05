@@ -222,87 +222,7 @@ class EmotionDataset(Dataset):
 # Se definen las funciones para calcular métricas y generar los gráficos (matriz de confusión y curva ROC multiclase).
 
 # %%
-from sklearn.model_selection import StratifiedKFold
 import gc
-
-def cross_validate_transformer(model_name, model_alias, train_texts_list, train_labels_list, tokenizer_class, model_class, id2label, label2id, num_classes, BATCH_SIZE, EPOCHS, WEIGHT_DECAY, WARMUP_STEPS, archivo_reporte):
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    
-    acc_list, prec_list, rec_list, f1_list = [], [], [], []
-    print(f"\n--- Iniciando 5-Fold CV para {model_alias} en Entrenamiento Efectivo ---")
-    
-    for fold, (train_idx, val_idx) in enumerate(skf.split(train_texts_list, train_labels_list)):
-        print(f"\n Fold {fold+1}/5...")
-        
-        fold_train_texts = [train_texts_list[i] for i in train_idx]
-        fold_train_labels = [train_labels_list[i] for i in train_idx]
-        fold_val_texts = [train_texts_list[i] for i in val_idx]
-        fold_val_labels = [train_labels_list[i] for i in val_idx]
-        
-        tokenizer = tokenizer_class.from_pretrained(model_name)
-        
-        fold_train_encodings = tokenizer(fold_train_texts, truncation=True, padding=True, max_length=MAX_LENGTH)
-        fold_val_encodings = tokenizer(fold_val_texts, truncation=True, padding=True, max_length=MAX_LENGTH)
-        
-        fold_train_dataset = EmotionDataset(fold_train_encodings, fold_train_labels)
-        fold_val_dataset = EmotionDataset(fold_val_encodings, fold_val_labels)
-        
-        model = model_class.from_pretrained(model_name, num_labels=num_classes, id2label=id2label, label2id=label2id)
-        freeze_bottom_layers(model)
-        
-        training_args = TrainingArguments(
-            output_dir=f'./resultados_temp_{model_alias}_fold{fold}',
-            num_train_epochs=EPOCHS,
-            per_device_train_batch_size=BATCH_SIZE,
-            per_device_eval_batch_size=BATCH_SIZE,
-            warmup_steps=WARMUP_STEPS,
-            weight_decay=WEIGHT_DECAY,
-            logging_dir=f'./logs_temp_{model_alias}_fold{fold}',
-            logging_steps=50,
-            eval_strategy="epoch",
-            save_strategy="epoch",
-            load_best_model_at_end=True,
-            metric_for_best_model="eval_f1_macro",
-            greater_is_better=True,
-            report_to="none"
-        )
-        
-        trainer = CustomTrainer(
-            model=model,
-            args=training_args,
-            train_dataset=fold_train_dataset,
-            eval_dataset=fold_val_dataset,
-            compute_metrics=compute_metrics,
-            callbacks=[EarlyStoppingCallback(early_stopping_patience=2)]
-        )
-        
-        trainer.train()
-        
-        metrics = trainer.evaluate()
-        acc_list.append(metrics['eval_accuracy'])
-        prec_list.append(metrics['eval_precision_macro'])
-        rec_list.append(metrics['eval_recall_macro'])
-        f1_list.append(metrics['eval_f1_macro'])
-        
-        del model
-        del trainer
-        gc.collect()
-        torch.cuda.empty_cache()
-        
-    print(f"\n Resultados CV (5 Folds) para {model_alias}:")
-    print(f"Accuracy media: {np.mean(acc_list):.4f}")
-    print(f"Precision media: {np.mean(prec_list):.4f}")
-    print(f"Recall media: {np.mean(rec_list):.4f}")
-    print(f"F1-Score media: {np.mean(f1_list):.4f}")
-    
-    with open(archivo_reporte, 'a', encoding='utf-8') as f:
-        f.write(f"## {model_alias}\n\n")
-        f.write(f"### Resultados de Validación Cruzada (5-Folds en Entrenamiento Efectivo)\n")
-        f.write(f"- **Accuracy Media:** {np.mean(acc_list):.4f}\n")
-        f.write(f"- **Precision Media (macro):** {np.mean(prec_list):.4f}\n")
-        f.write(f"- **Recall Media (macro):** {np.mean(rec_list):.4f}\n")
-        f.write(f"- **F1-Score Media (macro):** {np.mean(f1_list):.4f}\n\n")
-
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
@@ -541,24 +461,6 @@ ruta_reporte = os.path.join(RESULTADOS_DIR, 'reporte_transformers.md')
 with open(ruta_reporte, 'w', encoding='utf-8') as f:
     f.write('# Reporte de evaluación de modelos Transformer\n\n')
 
-# 1. Validación Cruzada BETO
-cross_validate_transformer(
-    model_name=MODELO_BETO,
-    model_alias="BETO",
-    train_texts_list=train_texts,
-    train_labels_list=train_labels_ids,
-    tokenizer_class=AutoTokenizer,
-    model_class=AutoModelForSequenceClassification,
-    id2label=id2label,
-    label2id=label2id,
-    num_classes=len(clases),
-    BATCH_SIZE=BATCH_SIZE,
-    EPOCHS=EPOCHS,
-    WEIGHT_DECAY=WEIGHT_DECAY,
-    WARMUP_STEPS=WARMUP_STEPS,
-    archivo_reporte=ruta_reporte
-)
-
 print("\n--- Entrenando modelo BETO Final ---")
 print("Cargando modelo pre-entrenado BETO...")
 model_beto = AutoModelForSequenceClassification.from_pretrained(
@@ -596,35 +498,6 @@ trainer_beto = CustomTrainer(
 )
 
 trainer_beto.train()
-
-# %% [markdown]
-# #### Curvas de Aprendizaje
-
-# %%
-history = trainer_beto.state.log_history
-train_loss = [x['loss'] for x in history if 'loss' in x]
-val_loss = [x['eval_loss'] for x in history if 'eval_loss' in x]
-val_f1 = [x['eval_f1_macro'] for x in history if 'eval_f1_macro' in x]
-epochs = range(1, len(val_loss) + 1)
-
-plt.figure(figsize=(12, 5))
-plt.subplot(1, 2, 1)
-plt.plot(train_loss, label='Train Loss')
-plt.plot(val_loss, label='Val Loss')
-plt.title('Loss por Época')
-plt.xlabel('Pasos/Épocas')
-plt.ylabel('Loss')
-plt.legend()
-
-plt.subplot(1, 2, 2)
-plt.plot(epochs, val_f1, label='Val F1', marker='o')
-plt.title('F1 Macro en Validación por Época')
-plt.xlabel('Época')
-plt.ylabel('F1')
-plt.legend()
-plt.tight_layout()
-plt.savefig(os.path.join(RESULTADOS_DIR, 'curvas_aprendizaje_beto.png'))
-plt.show()
 
 # %% [markdown]
 # #### Evaluación del modelo
@@ -772,25 +645,7 @@ print(f"Val dataset: {len(val_dataset_roberta)} muestras")
 # %%
 ruta_reporte = os.path.join(RESULTADOS_DIR, 'reporte_transformers.md')
 
-# 1. Validación Cruzada RoBERTuito
-cross_validate_transformer(
-    model_name=MODELO_ROBERTA,
-    model_alias="RoBERTuito",
-    train_texts_list=train_texts_proc,
-    train_labels_list=train_labels_ids,
-    tokenizer_class=AutoTokenizer,
-    model_class=AutoModelForSequenceClassification,
-    id2label=id2label,
-    label2id=label2id,
-    num_classes=len(clases),
-    BATCH_SIZE=BATCH_SIZE,
-    EPOCHS=EPOCHS,
-    WEIGHT_DECAY=WEIGHT_DECAY,
-    WARMUP_STEPS=WARMUP_STEPS,
-    archivo_reporte=ruta_reporte
-)
-
-print("\n--- Entrenando modelo RoBERTuito Final ---")
+print("\nEntrenando modelo RoBERTuito Final")
 print("Cargando modelo pre-entrenado RoBERTuito...")
 model_roberta = AutoModelForSequenceClassification.from_pretrained(
     MODELO_ROBERTA,

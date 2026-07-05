@@ -2,84 +2,76 @@
 
 ## BETO
 
-### Resultados de Validación Cruzada (5-Folds en Entrenamiento Efectivo)
-
-- **Accuracy Media:** 0.6846
-- **Precision Media (macro):** 0.6867
-- **Recall Media (macro):** 0.6873
-- **F1-Score Media (macro):** 0.6849
-
-## BETO
-
 ### Resultados en Entrenamiento Efectivo
 
-- **Accuracy:** 0.8572
-- **Precision (macro):** 0.8624
-- **Recall (macro):** 0.8593
-- **F1-Score (macro):** 0.8567
+- **Accuracy:** 0.9389
+- **Precision (macro):** 0.9402
+- **Recall (macro):** 0.9392
+- **F1-Score (macro):** 0.9396
 
 **AUC ROC (Entrenamiento Efectivo):**
 
-- Macro-promedio: 0.9688
-- Alegria: 0.9601\n- Miedo: 0.9757
-- Sorpresa: 0.9746\n- Tristeza: 0.9647
-
-**Reporte por Clase (Entrenamiento Efectivo)**
+- Macro-promedio: 0.9913
+- Alegria: 0.9868
+- Miedo: 0.9938
+- Sorpresa: 0.9952
+- Tristeza: 0.9894
+  **Reporte por Clase (Entrenamiento Efectivo)**
 
 | Clase    | Precisión | Recall | F1-Score | Soporte |
 | -------- | --------- | ------ | -------- | ------- |
-| Alegria  | 0.9190    | 0.7393 | 0.8194   | 1304    |
-| Miedo    | 0.8938    | 0.8850 | 0.8894   | 1122    |
-| Sorpresa | 0.7774    | 0.9285 | 0.8462   | 1147    |
-| Tristeza | 0.8596    | 0.8842 | 0.8718   | 1503    |
+| Alegria  | 0.9317    | 0.9103 | 0.9209   | 1304    |
+| Miedo    | 0.9459    | 0.9510 | 0.9484   | 1122    |
+| Sorpresa | 0.9559    | 0.9459 | 0.9509   | 1147    |
+| Tristeza | 0.9272    | 0.9494 | 0.9382   | 1503    |
 
 ### Resultados en Validación
 
-- **Accuracy:** 0.7169
-- **Precision (macro):** 0.7240
-- **Recall (macro):** 0.7159
-- **F1-Score (macro):** 0.7145
+- **Accuracy:** 0.7201
+- **Precision (macro):** 0.7196
+- **Recall (macro):** 0.7154
+- **F1-Score (macro):** 0.7167
 
 **AUC ROC (Validación):**
 
-- Macro-promedio: 0.9034
-- Alegria: 0.8789
-- Miedo: 0.9323
-- Sorpresa: 0.8907
-- Tristeza: 0.9103
+- Macro-promedio: 0.9001
+- Alegria: 0.8707
+- Miedo: 0.9338
+- Sorpresa: 0.8880
+- Tristeza: 0.9068
 
 **Reporte por Clase (Validación)**
 
 | Clase    | Precisión | Recall | F1-Score | Soporte |
 | -------- | --------- | ------ | -------- | ------- |
-| Alegria  | 0.7890    | 0.5886 | 0.6742   | 559     |
-| Miedo    | 0.7622    | 0.7464 | 0.7542   | 481     |
-| Sorpresa | 0.6149    | 0.7398 | 0.6716   | 492     |
-| Tristeza | 0.7299    | 0.7888 | 0.7582   | 644     |
+| Alegria  | 0.6867    | 0.6941 | 0.6904   | 559     |
+| Miedo    | 0.7717    | 0.7588 | 0.7652   | 481     |
+| Sorpresa | 0.6864    | 0.6138 | 0.6481   | 492     |
+| Tristeza | 0.7335    | 0.7950 | 0.7630   | 644     |
 
 ### Resultados en Prueba
 
-- **Accuracy:** 0.7259
-- **Precision (macro):** 0.7390
-- **Recall (macro):** 0.7270
-- **F1-Score (macro):** 0.7262
+- **Accuracy:** 0.7187
+- **Precision (macro):** 0.7226
+- **Recall (macro):** 0.7164
+- **F1-Score (macro):** 0.7189
 
 **AUC ROC (Prueba):**
 
-- Macro-promedio: 0.9076
-- Alegria: 0.8788
-- Miedo: 0.9382
-- Sorpresa: 0.8936
-- Tristeza: 0.9187
+- Macro-promedio: 0.9045
+- Alegria: 0.8729
+- Miedo: 0.9396
+- Sorpresa: 0.8934
+- Tristeza: 0.9110
 
 **Reporte por Clase (Prueba)**
 
 | Clase    | Precisión | Recall | F1-Score | Soporte |
 | -------- | --------- | ------ | -------- | ------- |
-| Alegria  | 0.7994    | 0.5901 | 0.6790   | 466     |
-| Miedo    | 0.8259    | 0.7805 | 0.8026   | 401     |
-| Sorpresa | 0.5932    | 0.7628 | 0.6674   | 409     |
-| Tristeza | 0.7376    | 0.7747 | 0.7557   | 537     |
+| Alegria  | 0.6947    | 0.7082 | 0.7014   | 466     |
+| Miedo    | 0.8320    | 0.7656 | 0.7974   | 401     |
+| Sorpresa | 0.6500    | 0.6357 | 0.6428   | 409     |
+| Tristeza | 0.7135    | 0.7561 | 0.7342   | 537     |
 
 ### Gráficas Conjuntas
 
@@ -95,87 +87,78 @@
 
 ## RoBERTuito
 
-### Resultados de Validación Cruzada (5-Folds en Entrenamiento Efectivo)
-
-- **Accuracy Media:** 0.6966
-- **Precision Media (macro):** 0.7015
-- **Recall Media (macro):** 0.6974
-- **F1-Score Media (macro):** 0.6973
-
-## RoBERTuito
-
 ### Resultados en Entrenamiento Efectivo
 
-- **Accuracy:** 0.8649
-- **Precision (macro):** 0.8673
-- **Recall (macro):** 0.8652
-- **F1-Score (macro):** 0.8654
+- **Accuracy:** 0.9318
+- **Precision (macro):** 0.9326
+- **Recall (macro):** 0.9334
+- **F1-Score (macro):** 0.9327
 
 **AUC ROC (Entrenamiento Efectivo):**
 
-- Macro-promedio: 0.9685
-- Alegria: 0.9592
-- Miedo: 0.9779
-- Sorpresa: 0.9746
-- Tristeza: 0.9620
+- Macro-promedio: 0.9885
+- Alegria: 0.9816
+- Miedo: 0.9921
+- Sorpresa: 0.9951
+- Tristeza: 0.9850
+  **Reporte por Clase (Entrenamiento Efectivo)**
 
-**Reporte por Clase (Entrenamiento Efectivo)**
-| Clase | Precisión | Recall | F1-Score | Soporte |
-|-------|-----------|--------|----------|---------|
-| Alegria | 0.8915 | 0.8006 | 0.8436 | 1304 |
-| Miedo | 0.8703 | 0.9029 | 0.8863 | 1122 |
-| Sorpresa | 0.8696 | 0.8666 | 0.8681 | 1147 |
-| Tristeza | 0.8379 | 0.8909 | 0.8636 | 1503 |
+| Clase    | Precisión | Recall | F1-Score | Soporte |
+| -------- | --------- | ------ | -------- | ------- |
+| Alegria  | 0.9357    | 0.8934 | 0.9141   | 1304    |
+| Miedo    | 0.9115    | 0.9643 | 0.9372   | 1122    |
+| Sorpresa | 0.9584    | 0.9451 | 0.9517   | 1147    |
+| Tristeza | 0.9247    | 0.9308 | 0.9277   | 1503    |
 
 ### Resultados en Validación
 
-- **Accuracy:** 0.7229
-- **Precision (macro):** 0.7228
-- **Recall (macro):** 0.7201
-- **F1-Score (macro):** 0.7203
+- **Accuracy:** 0.7279
+- **Precision (macro):** 0.7255
+- **Recall (macro):** 0.7265
+- **F1-Score (macro):** 0.7249
 
 **AUC ROC (Validación):**
 
-- Macro-promedio: 0.9077
-- Alegria: 0.8909
-- Miedo: 0.9346
-- Sorpresa: 0.8978
-- Tristeza: 0.9063
+- Macro-promedio: 0.9051
+- Alegria: 0.8866
+- Miedo: 0.9344
+- Sorpresa: 0.8958
+- Tristeza: 0.9026
 
 **Reporte por Clase (Validación)**
 
 | Clase    | Precisión | Recall | F1-Score | Soporte |
 | -------- | --------- | ------ | -------- | ------- |
-| Alegria  | 0.7495    | 0.6691 | 0.7070   | 559     |
-| Miedo    | 0.7495    | 0.7775 | 0.7633   | 481     |
-| Sorpresa | 0.6752    | 0.6463 | 0.6604   | 492     |
-| Tristeza | 0.7171    | 0.7873 | 0.7506   | 644     |
+| Alegria  | 0.7191    | 0.7191 | 0.7191   | 559     |
+| Miedo    | 0.7220    | 0.8046 | 0.7611   | 481     |
+| Sorpresa | 0.7048    | 0.6260 | 0.6631   | 492     |
+| Tristeza | 0.7562    | 0.7562 | 0.7562   | 644     |
 
 ### Resultados en Prueba
 
-- **Accuracy:** 0.7303
-- **Precision (macro):** 0.7325
-- **Recall (macro):** 0.7276
-- **F1-Score (macro):** 0.7284
+- **Accuracy:** 0.7281
+- **Precision (macro):** 0.7258
+- **Recall (macro):** 0.7268
+- **F1-Score (macro):** 0.7258
 
 **AUC ROC (Prueba):**
 
-- Macro-promedio: 0.9115
-- Alegria: 0.8888
-- Miedo: 0.9388
-- Sorpresa: 0.9046
-- Tristeza: 0.9126
+- Macro-promedio: 0.9111
+- Alegria: 0.8878
+- Miedo: 0.9403
+- Sorpresa: 0.9029
+- Tristeza: 0.9121
 
 **Reporte por Clase (Prueba)**
 
 | Clase    | Precisión | Recall | F1-Score | Soporte |
 | -------- | --------- | ------ | -------- | ------- |
-| Alegria  | 0.7550    | 0.6545 | 0.7011   | 466     |
-| Miedo    | 0.8020    | 0.8080 | 0.8050   | 401     |
-| Sorpresa | 0.6617    | 0.6455 | 0.6535   | 409     |
-| Tristeza | 0.7112    | 0.8026 | 0.7542   | 537     |
+| Alegria  | 0.7231    | 0.7060 | 0.7144   | 466     |
+| Miedo    | 0.7687    | 0.8204 | 0.7937   | 401     |
+| Sorpresa | 0.6737    | 0.6210 | 0.6463   | 409     |
+| Tristeza | 0.7378    | 0.7598 | 0.7486   | 537     |
 
-### Gráficas Conjuntas
+\n### Gráficas Conjuntas
 
 **Matrices de Confusión:**
 
