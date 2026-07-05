@@ -34,32 +34,22 @@ else:
 import os
 import sys
 
-if os.path.exists('/content'):
-    # Entorno de la nube
-    print("Entorno de la nube (Colab) detectado.")
-    print("Montando Google Drive...")
-    # pyrefly: ignore [missing-import]
-    from google.colab import drive
-    drive.mount('/content/drive')
-    
-    BASE_DIR = '/content'
-    # Ruta a la carpeta donde se encuentra los datasets limpios
-    DATOS_DIR = '/content/drive/MyDrive/Proyecto-Mineria-G4/prueba'
-else:
-    # Entorno local
-    print("Entorno local detectado.")
-    try:
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-    except NameError:
-        current_dir = os.getcwd()
+try:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    current_dir = os.getcwd()
 
-    BASE_DIR = current_dir
-    while BASE_DIR != os.path.dirname(BASE_DIR):
-        if 'modelado' in os.listdir(BASE_DIR) and os.path.isdir(os.path.join(BASE_DIR, 'modelado')):
-            break
+BASE_DIR = current_dir
+DATOS_DIR = os.path.join(BASE_DIR, 'datos')
+
+# Si no está directamente ahí, busquemos un nivel arriba o en modelado
+if not os.path.exists(DATOS_DIR):
+    if os.path.exists(os.path.join(BASE_DIR, 'modelado', 'datos')):
+        DATOS_DIR = os.path.join(BASE_DIR, 'modelado', 'datos')
+        BASE_DIR = os.path.join(BASE_DIR, 'modelado')
+    elif os.path.exists(os.path.join(os.path.dirname(BASE_DIR), 'datos')):
         BASE_DIR = os.path.dirname(BASE_DIR)
-        
-    DATOS_DIR = os.path.join(BASE_DIR, 'modelado', 'datos')
+        DATOS_DIR = os.path.join(BASE_DIR, 'datos')
 
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
@@ -119,9 +109,7 @@ import glob
 import pandas as pd
 
 archivos = [
-    os.path.join(DATOS_DIR, 'dataset_procesado_tiktok_parte01.csv'),
-    os.path.join(DATOS_DIR, 'dataset_procesado_youtube_parte01.csv'),
-    os.path.join(DATOS_DIR, 'dataset_procesado_youtube_parte02.csv')
+    os.path.join(DATOS_DIR, 'dataset_limpio_final.csv')
 ]
 
 dfs = []
@@ -130,6 +118,8 @@ for f in archivos:
         print(f"Cargando {os.path.basename(f)}...")
         temp_df = pd.read_csv(f, sep=';', encoding='utf-8')
         temp_df.columns = temp_df.columns.str.strip().str.replace('"', '').str.lower()
+        if 'final_emocion' in temp_df.columns:
+            temp_df['emocion'] = temp_df['final_emocion']
         dfs.append(temp_df)
 
 if not dfs:
@@ -321,35 +311,35 @@ def guardar_reporte_markdown(filename, ruta, nombre_modelo, metricas_totales, cm
     roc_rel = roc_path.replace('\\\\', '/')
 
     with open(ruta_completa, 'a', encoding='utf-8') as f:
-        f.write(f"## {nombre_modelo}\\n\\n")
+        f.write(f"## {nombre_modelo}\n\n")
         
         for nombre_conjunto in ['Entrenamiento Efectivo', 'Validación', 'Prueba']:
             if nombre_conjunto not in metricas_totales: continue
             
-            f.write(f"### Resultados en {nombre_conjunto}\\n")
-            f.write(f"- **Accuracy:** {metricas_totales[nombre_conjunto]['accuracy']:.4f}\\n")
+            f.write(f"### Resultados en {nombre_conjunto}\n")
+            f.write(f"- **Accuracy:** {metricas_totales[nombre_conjunto]['accuracy']:.4f}\n")
             f.write(f"- **Precision (macro):** {metricas_totales[nombre_conjunto]['precision_macro']:.4f}\\n")
-            f.write(f"- **Recall (macro):** {metricas_totales[nombre_conjunto]['recall_macro']:.4f}\\n")
-            f.write(f"- **F1-Score (macro):** {metricas_totales[nombre_conjunto]['f1_macro']:.4f}\\n\\n")
+            f.write(f"- **Recall (macro):** {metricas_totales[nombre_conjunto]['recall_macro']:.4f}\n")
+            f.write(f"- **F1-Score (macro):** {metricas_totales[nombre_conjunto]['f1_macro']:.4f}\n\n")
 
-            f.write(f"**AUC ROC ({nombre_conjunto}):**\\n")
-            f.write(f"- Macro-promedio: {auc_dict_ret[nombre_conjunto]['macro']:.4f}\\n")
+            f.write(f"**AUC ROC ({nombre_conjunto}):**\n")
+            f.write(f"- Macro-promedio: {auc_dict_ret[nombre_conjunto]['macro']:.4f}\n")
             for i, clase in enumerate(clases):
-                f.write(f"- {clase}: {auc_dict_ret[nombre_conjunto]['clases'][i]:.4f}\\n")
-            f.write("\\n")
+                f.write(f"- {clase}: {auc_dict_ret[nombre_conjunto]['clases'][i]:.4f}\n")
+            f.write("\n")
 
-            f.write(f"**Reporte por Clase ({nombre_conjunto})**\\n\\n")
-            f.write("| Clase | Precisión | Recall | F1-Score | Soporte |\\n")
-            f.write("|-------|-----------|--------|----------|---------|\\n")
+            f.write(f"**Reporte por Clase ({nombre_conjunto})**\n\n")
+            f.write("| Clase | Precisión | Recall | F1-Score | Soporte |\n")
+            f.write("|-------|-----------|--------|----------|---------|\n")
             for clase in clases:
                 r = reportes_totales[nombre_conjunto][clase]
-                f.write(f"| {clase} | {r['precision']:.4f} | {r['recall']:.4f} | {r['f1-score']:.4f} | {int(r['support'])} |\\n")
-            f.write("\\n")
+                f.write(f"| {clase} | {r['precision']:.4f} | {r['recall']:.4f} | {r['f1-score']:.4f} | {int(r['support'])} |\n")
+            f.write("\n")
 
-        f.write("### Gráficas Conjuntas\\n\\n")
-        f.write(f"**Matrices de Confusión:**\\n\\n![Matrices de Confusión {nombre_modelo}](./{os.path.basename(cm_path)})\\n\\n")
-        f.write(f"**Curvas ROC:**\\n\\n![Curvas ROC {nombre_modelo}](./{os.path.basename(roc_path)})\\n\\n")
-        f.write("---\\n\\n")
+        f.write("### Gráficas Conjuntas\n\n")
+        f.write(f"**Matrices de Confusión:**\n\n![Matrices de Confusión {nombre_modelo}](./{os.path.basename(cm_path)})\n\n")
+        f.write(f"**Curvas ROC:**\n\n![Curvas ROC {nombre_modelo}](./{os.path.basename(roc_path)})\n\n")
+        f.write("---\n\n")
 
     print(f"Reporte actualizado: {ruta_completa}")
     return ruta_completa
