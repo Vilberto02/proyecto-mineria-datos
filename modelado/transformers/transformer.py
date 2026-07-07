@@ -321,35 +321,35 @@ def guardar_reporte_markdown(filename, ruta, nombre_modelo, metricas_totales, cm
     roc_rel = roc_path.replace('\\\\', '/')
 
     with open(ruta_completa, 'a', encoding='utf-8') as f:
-        f.write(f"## {nombre_modelo}\\n\\n")
+        f.write(f"## {nombre_modelo}\n\n")
         
         for nombre_conjunto in ['Entrenamiento Efectivo', 'Validación', 'Prueba']:
             if nombre_conjunto not in metricas_totales: continue
             
-            f.write(f"### Resultados en {nombre_conjunto}\\n")
-            f.write(f"- **Accuracy:** {metricas_totales[nombre_conjunto]['accuracy']:.4f}\\n")
-            f.write(f"- **Precision (macro):** {metricas_totales[nombre_conjunto]['precision_macro']:.4f}\\n")
-            f.write(f"- **Recall (macro):** {metricas_totales[nombre_conjunto]['recall_macro']:.4f}\\n")
-            f.write(f"- **F1-Score (macro):** {metricas_totales[nombre_conjunto]['f1_macro']:.4f}\\n\\n")
+            f.write(f"### Resultados en {nombre_conjunto}\n")
+            f.write(f"- **Accuracy:** {metricas_totales[nombre_conjunto]['accuracy']:.4f}\n")
+            f.write(f"- **Precision (macro):** {metricas_totales[nombre_conjunto]['precision_macro']:.4f}\n")
+            f.write(f"- **Recall (macro):** {metricas_totales[nombre_conjunto]['recall_macro']:.4f}\n")
+            f.write(f"- **F1-Score (macro):** {metricas_totales[nombre_conjunto]['f1_macro']:.4f}\n\n")
 
-            f.write(f"**AUC ROC ({nombre_conjunto}):**\\n")
-            f.write(f"- Macro-promedio: {auc_dict_ret[nombre_conjunto]['macro']:.4f}\\n")
+            f.write(f"**AUC ROC ({nombre_conjunto}):**\n")
+            f.write(f"- Macro-promedio: {auc_dict_ret[nombre_conjunto]['macro']:.4f}\n")
             for i, clase in enumerate(clases):
-                f.write(f"- {clase}: {auc_dict_ret[nombre_conjunto]['clases'][i]:.4f}\\n")
-            f.write("\\n")
+                f.write(f"- {clase}: {auc_dict_ret[nombre_conjunto]['clases'][i]:.4f}\n")
+            f.write("\n")
 
-            f.write(f"**Reporte por Clase ({nombre_conjunto})**\\n\\n")
-            f.write("| Clase | Precisión | Recall | F1-Score | Soporte |\\n")
-            f.write("|-------|-----------|--------|----------|---------|\\n")
+            f.write(f"**Reporte por Clase ({nombre_conjunto})**\n\n")
+            f.write("| Clase | Precisión | Recall | F1-Score | Soporte |\n")
+            f.write("|-------|-----------|--------|----------|---------|\n")
             for clase in clases:
                 r = reportes_totales[nombre_conjunto][clase]
-                f.write(f"| {clase} | {r['precision']:.4f} | {r['recall']:.4f} | {r['f1-score']:.4f} | {int(r['support'])} |\\n")
-            f.write("\\n")
+                f.write(f"| {clase} | {r['precision']:.4f} | {r['recall']:.4f} | {r['f1-score']:.4f} | {int(r['support'])} |\n")
+            f.write("\n")
 
-        f.write("### Gráficas Conjuntas\\n\\n")
-        f.write(f"**Matrices de Confusión:**\\n\\n![Matrices de Confusión {nombre_modelo}](./{os.path.basename(cm_path)})\\n\\n")
-        f.write(f"**Curvas ROC:**\\n\\n![Curvas ROC {nombre_modelo}](./{os.path.basename(roc_path)})\\n\\n")
-        f.write("---\\n\\n")
+        f.write("### Gráficas Conjuntas\n\n")
+        f.write(f"**Matrices de Confusión:**\n\n![Matrices de Confusión {nombre_modelo}](./{os.path.basename(cm_path)})\n\n")
+        f.write(f"**Curvas ROC:**\n\n![Curvas ROC {nombre_modelo}](./{os.path.basename(roc_path)})\n\n")
+        f.write("---\n\n")
 
     print(f"Reporte actualizado: {ruta_completa}")
     return ruta_completa
@@ -764,10 +764,3 @@ guardar_reporte_markdown(
     'reporte_transformers.md', RESULTADOS_DIR, 'RoBERTuito', roberta_metrics_totales,
     roberta_cm_path, roberta_roc_path, roberta_auc_dict_ret, roberta_reportes_totales, clases
 )
-
-# %% [markdown]
-# 
-# ### 7. Exportación del reporte
-
-# %%
-# La limpieza del reporte se hace antes de evaluar BETO (CV).
