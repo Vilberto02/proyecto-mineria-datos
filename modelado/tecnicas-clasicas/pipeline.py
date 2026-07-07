@@ -6,7 +6,7 @@ import pandas as pd
 # pyrefly: ignore [missing-import]
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
+from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import SVC
 from sklearn.calibration import CalibratedClassifierCV
@@ -137,22 +137,13 @@ def graficar_matrices_confusion_conjuntas(nombre_modelo, y_train, y_pred_train, 
 
     return nombre_archivo_cm
 
-def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid,
-                        X_train, y_train, X_val, y_val, X_test, y_test,
-                        archivo_reporte, skf):
+def evaluar_modelo(nombre_modelo, pipeline,
+                     X_train, y_train, X_val, y_val, X_test, y_test,
+                     archivo_reporte):
     print(f"   -> Entrenando {nombre_modelo}...")
     
-    if param_grid:
-        print(f"      (Buscando mejores hiperparámetros con GridSearchCV...)")
-        grid = GridSearchCV(pipeline, param_grid, cv=skf, scoring='f1_macro', n_jobs=-1, verbose=1)
-        grid.fit(X_train, y_train)
-        mejor_modelo = grid.best_estimator_
-        mejores_params = grid.best_params_
-        print(f"      Mejores hiperparámetros: {mejores_params}")
-    else:
-        pipeline.fit(X_train, y_train)
-        mejor_modelo = pipeline
-        mejores_params = "Por defecto"
+    pipeline.fit(X_train, y_train)
+    mejor_modelo = pipeline
 
     clases = list(mejor_modelo.classes_)
 
@@ -170,9 +161,6 @@ def evaluar_modelo_grid(nombre_modelo, pipeline, param_grid,
 
     with open(archivo_reporte, 'a', encoding='utf-8') as f:
         f.write(f"## {nombre_modelo}\n\n")
-
-        if param_grid:
-            f.write(f"**Mejores Hiperparámetros Encontrados:** `{mejores_params}`\n\n")
 
         # — Entrenamiento Efectivo (~56%) —
         f.write("### Resultados en el Conjunto de Entrenamiento Efectivo (~56%)\n")
@@ -282,36 +270,26 @@ def ejecutar_pipeline():
             'pipeline': Pipeline([
                 ('tfidf', TfidfVectorizer(ngram_range=(1, 2), max_features=2000, min_df=5, max_df=0.85)),
                 ('clf', CalibratedClassifierCV(
-                    SVC(kernel='linear', class_weight='balanced', random_state=42),
+                    SVC(kernel='linear', C=1, class_weight='balanced', random_state=42),
                     cv=5, method='sigmoid'
                 ))
-            ]),
-            'param_grid': {
-                'clf__estimator__C': [0.1, 1, 10]
-            }
+            ])
         },
         {
             'nombre': 'Random Forest',
             'pipeline': Pipeline([
                 ('tfidf', TfidfVectorizer(ngram_range=(1, 2), max_features=2000, min_df=5, max_df=0.85)),
-                ('clf', RandomForestClassifier(class_weight='balanced', random_state=42))
-            ]),
-            'param_grid': {
-                'clf__max_depth': [10, 20, 30],
-                'clf__min_samples_split': [2, 5, 10]
-            }
+                ('clf', RandomForestClassifier(max_depth=20, min_samples_split=5, class_weight='balanced', random_state=42))
+            ])
         },
         {
             'nombre': 'Naive Bayes',
             'pipeline': Pipeline([
                 ('tfidf', TfidfVectorizer(ngram_range=(1, 2), max_features=2000, min_df=5, max_df=0.85)),
                 ('clf', MultinomialNB())
-            ]),
-            'param_grid': {} # Ejecución normal sin GridSearchCV
+            ])
         }
     ]
-    
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     
     archivo_reporte = os.path.join(RESULTADOS_DIR, 'reporte_modelos_clasicos.md')
     
@@ -336,17 +314,15 @@ def ejecutar_pipeline():
         f.write(f"| **Total** | **{len(y_train)}** | **{len(y_val)}** | **{len(y_test)}** |\n\n")
         f.write("---\n\n")
     
-    print("5. Entrenamiento y optimización de hiperparámetros...")
+    print("5. Entrenamiento...")
     for conf in configuraciones:
-        evaluar_modelo_grid(
+        evaluar_modelo(
             conf['nombre'], 
             conf['pipeline'], 
-            conf['param_grid'], 
             X_train, y_train,
             X_val, y_val,
             X_test, y_test,
-            archivo_reporte, 
-            skf
+            archivo_reporte
         )
         
     print(f"\nProceso completado. Reporte guardado en: {archivo_reporte}")
