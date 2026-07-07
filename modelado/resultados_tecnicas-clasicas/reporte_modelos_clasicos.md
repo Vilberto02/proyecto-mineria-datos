@@ -23,8 +23,6 @@
 
 ## SVM
 
-**Mejores Hiperparámetros Encontrados:** `{'clf__estimator__C': 1}`
-
 ### Resultados en el Conjunto de Entrenamiento Efectivo (~56%)
 - **Accuracy:** 0.8008
 - **Precision (macro):** 0.8016
@@ -120,88 +118,86 @@ weighted avg       0.65      0.64      0.65      1813
 
 ## Random Forest
 
-**Mejores Hiperparámetros Encontrados:** `{'clf__max_depth': 30, 'clf__min_samples_split': 5}`
-
 ### Resultados en el Conjunto de Entrenamiento Efectivo (~56%)
-- **Accuracy:** 0.8172
-- **Precision (macro):** 0.8387
-- **Recall (macro):** 0.8232
-- **F1-Score (macro):** 0.8207
+- **Accuracy:** 0.7634
+- **Precision (macro):** 0.7890
+- **Recall (macro):** 0.7695
+- **F1-Score (macro):** 0.7676
 
 ```text
               precision    recall  f1-score   support
 
-     Alegria       0.87      0.76      0.81      1304
-       Miedo       0.92      0.84      0.88      1122
-    Sorpresa       0.64      0.93      0.76      1147
-    Tristeza       0.92      0.77      0.84      1503
+     Alegria       0.82      0.67      0.74      1304
+       Miedo       0.88      0.80      0.84      1122
+    Sorpresa       0.58      0.88      0.70      1147
+    Tristeza       0.88      0.73      0.79      1503
 
-    accuracy                           0.82      5076
-   macro avg       0.84      0.82      0.82      5076
-weighted avg       0.85      0.82      0.82      5076
+    accuracy                           0.76      5076
+   macro avg       0.79      0.77      0.77      5076
+weighted avg       0.80      0.76      0.77      5076
 
 ```
 
 **AUC ROC (Entrenamiento):**
-- Macro-average: 0.9718
-- Alegria: 0.9678
-- Miedo: 0.9841
-- Sorpresa: 0.9641
-- Tristeza: 0.9710
+- Macro-average: 0.9489
+- Alegria: 0.9415
+- Miedo: 0.9718
+- Sorpresa: 0.9345
+- Tristeza: 0.9476
 
 ### Resultados en el Conjunto de Validación (~24%)
-- **Accuracy:** 0.6576
-- **Precision (macro):** 0.6719
-- **Recall (macro):** 0.6615
-- **F1-Score (macro):** 0.6607
+- **Accuracy:** 0.6494
+- **Precision (macro):** 0.6668
+- **Recall (macro):** 0.6551
+- **F1-Score (macro):** 0.6531
 
 ```text
               precision    recall  f1-score   support
 
-     Alegria       0.67      0.56      0.61       559
-       Miedo       0.78      0.73      0.75       481
-    Sorpresa       0.51      0.70      0.59       492
-    Tristeza       0.73      0.66      0.69       644
+     Alegria       0.66      0.53      0.59       559
+       Miedo       0.78      0.74      0.76       481
+    Sorpresa       0.49      0.72      0.59       492
+    Tristeza       0.74      0.63      0.68       644
 
-    accuracy                           0.66      2176
-   macro avg       0.67      0.66      0.66      2176
-weighted avg       0.68      0.66      0.66      2176
+    accuracy                           0.65      2176
+   macro avg       0.67      0.66      0.65      2176
+weighted avg       0.67      0.65      0.65      2176
 
 ```
 
 **AUC ROC (Validación):**
-- Macro-average: 0.8535
-- Alegria: 0.8138
-- Miedo: 0.9012
-- Sorpresa: 0.8359
-- Tristeza: 0.8618
+- Macro-average: 0.8507
+- Alegria: 0.8117
+- Miedo: 0.8957
+- Sorpresa: 0.8310
+- Tristeza: 0.8633
 
 ### Resultados en el Conjunto de Prueba y Evaluación (20%)
-- **Accuracy:** 0.6376
-- **Precision (macro):** 0.6575
-- **Recall (macro):** 0.6444
-- **F1-Score (macro):** 0.6440
+- **Accuracy:** 0.6426
+- **Precision (macro):** 0.6615
+- **Recall (macro):** 0.6501
+- **F1-Score (macro):** 0.6484
 
 ```text
               precision    recall  f1-score   support
 
-     Alegria       0.65      0.54      0.59       466
-       Miedo       0.82      0.73      0.77       401
-    Sorpresa       0.50      0.71      0.58       409
+     Alegria       0.67      0.53      0.59       466
+       Miedo       0.81      0.75      0.78       401
+    Sorpresa       0.50      0.72      0.59       409
     Tristeza       0.66      0.60      0.63       537
 
     accuracy                           0.64      1813
-   macro avg       0.66      0.64      0.64      1813
+   macro avg       0.66      0.65      0.65      1813
 weighted avg       0.66      0.64      0.64      1813
 
 ```
 
 **AUC ROC (Prueba):**
-- Macro-average: 0.8502
-- Alegria: 0.8216
-- Miedo: 0.9065
-- Sorpresa: 0.8336
-- Tristeza: 0.8381
+- Macro-average: 0.8487
+- Alegria: 0.8231
+- Miedo: 0.9054
+- Sorpresa: 0.8303
+- Tristeza: 0.8349
 
 ### Gráficas de Evaluación Conjuntas
 
