@@ -302,64 +302,9 @@ print("Función generica de entrenamiento de los modelos listo.")
 # #### Función de evaluación de los modelos con las métricas
 
 # %%
-from sklearn.model_selection import StratifiedKFold
 
-def cross_validate_model(model_class, model_name, X_train, y_train, vocab_size, embed_dim, num_classes, device, le, archivo_reporte):
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    
-    acc_list, prec_list, rec_list, f1_list = [], [], [], []
-    print(f"\n--- Iniciando 5-Fold CV para {model_name} en Entrenamiento Efectivo ---")
-    
-    for fold, (train_idx, val_idx) in enumerate(skf.split(X_train, y_train)):
-        X_fold_train = torch.tensor(X_train[train_idx], dtype=torch.long)
-        y_fold_train = torch.tensor(y_train[train_idx], dtype=torch.long)
-        X_fold_val = torch.tensor(X_train[val_idx], dtype=torch.long)
-        y_fold_val = torch.tensor(y_train[val_idx], dtype=torch.long)
-        
-        train_dataset = TensorDataset(X_fold_train, y_fold_train)
-        val_dataset = TensorDataset(X_fold_val, y_fold_val)
-        
-        train_loader_fold = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-        val_loader_fold = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
-        
-        model = model_class(vocab_size, embed_dim, num_classes).to(device)
-        print(f" Fold {fold+1}/5...")
-        model = train_model(model, train_loader_fold, val_loader_fold, device)
-        
-        model.eval()
-        preds_list = []
-        labels_list = []
-        with torch.no_grad():
-            for X_batch, y_batch in val_loader_fold:
-                X_batch = X_batch.to(device)
-                outputs = model(X_batch)
-                _, preds = torch.max(outputs, 1)
-                preds_list.extend(preds.cpu().numpy())
-                labels_list.extend(y_batch.numpy())
-                
-        acc = accuracy_score(labels_list, preds_list)
-        prec = precision_score(labels_list, preds_list, average='macro', zero_division=0)
-        rec = recall_score(labels_list, preds_list, average='macro', zero_division=0)
-        f1 = f1_score(labels_list, preds_list, average='macro', zero_division=0)
-        
-        acc_list.append(acc)
-        prec_list.append(prec)
-        rec_list.append(rec)
-        f1_list.append(f1)
-        
-    print(f"\n Resultados CV (5 Folds) para {model_name}:")
-    print(f"Accuracy media: {np.mean(acc_list):.4f}")
-    print(f"Precision media: {np.mean(prec_list):.4f}")
-    print(f"Recall media: {np.mean(rec_list):.4f}")
-    print(f"F1-Score media: {np.mean(f1_list):.4f}")
-    
-    with open(archivo_reporte, 'a', encoding='utf-8') as f:
-        f.write(f"## {model_name}\n\n")
-        f.write(f"### Resultados de Validación Cruzada (5-Folds en Entrenamiento Efectivo)\n")
-        f.write(f"- **Accuracy Media:** {np.mean(acc_list):.4f}\n")
-        f.write(f"- **Precision Media (macro):** {np.mean(prec_list):.4f}\n")
-        f.write(f"- **Recall Media (macro):** {np.mean(rec_list):.4f}\n")
-        f.write(f"- **F1-Score Media (macro):** {np.mean(f1_list):.4f}\n\n")
+
+
 
 
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
@@ -507,8 +452,7 @@ with open(archivo_reporte, 'w', encoding='utf-8') as f:
 
 # CNN
 print("Evaluación de CNN")
-# Cross Validation
-cross_validate_model(CNNModel, "CNN", X_train, y_train, vocab_size, EMBEDDING_DIM, num_classes, device, le, archivo_reporte)
+
 
 # Entrenamiento Final
 print("\nEntrenando modelo CNN Final")
@@ -521,8 +465,7 @@ evaluate_and_plot_conjuntos(model_cnn, "CNN", train_loader, val_loader, test_loa
 
 # LSTM
 print("\nEvaluación de LSTM")
-# Cross Validation
-cross_validate_model(LSTMModel, "LSTM", X_train, y_train, vocab_size, EMBEDDING_DIM, num_classes, device, le, archivo_reporte)
+
 
 # Entrenamiento Final
 print("\nEntrenando modelo LSTM Final")
