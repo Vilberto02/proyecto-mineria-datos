@@ -101,7 +101,8 @@
 - Miedo: 0.9921
 - Sorpresa: 0.9951
 - Tristeza: 0.9850
-  **Reporte por Clase (Entrenamiento Efectivo)**
+
+**Reporte por Clase (Entrenamiento Efectivo)**
 
 | Clase    | Precisión | Recall | F1-Score | Soporte |
 | -------- | --------- | ------ | -------- | ------- |
@@ -158,7 +159,7 @@
 | Sorpresa | 0.6737    | 0.6210 | 0.6463   | 409     |
 | Tristeza | 0.7378    | 0.7598 | 0.7486   | 537     |
 
-\n### Gráficas Conjuntas
+### Gráficas Conjuntas
 
 **Matrices de Confusión:**
 
